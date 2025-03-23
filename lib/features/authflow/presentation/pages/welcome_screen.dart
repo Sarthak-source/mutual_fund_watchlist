@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mutual_fund_watchlist/core/utils/app_colors.dart';
 import 'package:mutual_fund_watchlist/core/utils/app_styles.dart';
@@ -25,23 +26,17 @@ class WelcomeScreen extends StatelessWidget {
               // Logo
               Center(
                 child: SizedBox(
-                  height: 120,
-                  width: 120,
-                  child: Image.asset(
-                    'assets/images/dhan_logo.png', // Replace with your logo asset
+                  height: 320,
+                  width: MediaQuery.of(context).size.width,
+                  child: SvgPicture.asset(
+                    'assets/logo.svg',
                     fit: BoxFit.contain,
                   ),
                 ),
               ),
               const SizedBox(height: 24),
               // "Welcome to DhanSaarthi !" text
-              Center(
-                child: Text(
-                  'Welcome to DhanSaarthi !',
-                  style: AppStyles.h2,
-                  textAlign: TextAlign.center,
-                ),
-              ),
+          
               const Spacer(),
               // Bottom row with tagline on the left and circular arrow button on the right
               Row(
