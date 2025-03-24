@@ -53,6 +53,12 @@ dependencies:
   
   # UI/Assets
   flutter_svg: ^2.0.9
+  
+  # Networking
+  dio: ^5.4.1
+  
+  # Utilities
+  uuid: ^4.3.3
 
 dev_dependencies:
   flutter_test:

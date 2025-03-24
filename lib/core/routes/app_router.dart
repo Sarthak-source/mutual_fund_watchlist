@@ -47,6 +47,8 @@ class AppRouter {
           builder: (context, state) => const WelcomeScreen(),
         ),
         
+       
+    
         
         // Home screen
         GoRoute(
