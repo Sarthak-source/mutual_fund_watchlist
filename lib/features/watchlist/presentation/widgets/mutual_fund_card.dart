@@ -4,95 +4,149 @@ import 'package:mutual_fund_watchlist/features/watchlist/domain/entities/mutual_
 
 class MutualFundCard extends StatelessWidget {
   final MutualFundEntity fund;
+  final VoidCallback? onDelete;
   
   const MutualFundCard({
-    Key? key,
+    super.key,
     required this.fund,
-  }) : super(key: key);
+    this.onDelete,
+  });
 
   @override
   Widget build(BuildContext context) {
-    final bool isPositiveChange = fund.changePercent >= 0;
-    
-    return Card(
-      margin: const EdgeInsets.only(bottom: 12),
-      elevation: 0,
-      color: AppColors.cardBackground,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-        side: BorderSide(color: AppColors.border, width: 1),
+    return Dismissible(
+      key: Key(fund.isin),
+      background: Container(
+        alignment: Alignment.centerRight,
+        color: Colors.red,
+        padding: const EdgeInsets.only(right: 16),
+        child: const Icon(
+          Icons.delete,
+          color: Colors.white,
+        ),
       ),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  fund.symbol,
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    color: AppColors.textPrimary,
+      direction: DismissDirection.endToStart,
+      onDismissed: (_) {
+        if (onDelete != null) {
+          onDelete!();
+        }
+      },
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 12),
+        decoration: BoxDecoration(
+          color: AppColors.cardBackground,
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Expanded(
+                    child: Text(
+                      fund.name,
+                      style: const TextStyle(
+                        color: AppColors.textPrimary,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w500,
+                      ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
                   ),
-                ),
-                Text(
-                  '\$${fund.currentPrice.toStringAsFixed(2)}',
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    color: AppColors.textPrimary,
+                  const SizedBox(width: 8),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Text(
+                        'NAV ₹${fund.nav}',
+                        style: const TextStyle(
+                          color: AppColors.textPrimary,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                      Text(
+                        '1D ${fund.changePercent >= 0 ? '+' : ''}${fund.changePercent.toStringAsFixed(2)}%',
+                        style: TextStyle(
+                          color: fund.changePercent >= 0
+                              ? Colors.green
+                              : Colors.red,
+                          fontSize: 14,
+                        ),
+                      ),
+                    ],
                   ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 8),
-            Text(
-              fund.name,
-              style: const TextStyle(
-                fontSize: 14,
-                color: AppColors.textSecondary,
+                ],
               ),
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-            ),
-            const SizedBox(height: 12),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                _buildInfoItem('Day Change', 
-                  '${isPositiveChange ? '+' : ''}${fund.changePercent.toStringAsFixed(2)}%',
-                  isPositiveChange ? AppColors.success : AppColors.error),
-                _buildInfoItem('NAV', '\$${fund.netAssetValue.toStringAsFixed(2)}', null),
-                _buildInfoItem('YTD', '${fund.ytdReturn.toStringAsFixed(2)}%', null),
-              ],
-            ),
-          ],
+              const SizedBox(height: 12),
+              Text(
+                'Others | ${fund.category}',
+                style: const TextStyle(
+                  color: AppColors.textSecondary,
+                  fontSize: 14,
+                ),
+              ),
+              const SizedBox(height: 12),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  _buildReturnColumn('1Y', fund.oneYearReturn),
+                  _buildReturnColumn('3Y', fund.threeYearReturn),
+                  _buildReturnColumn('5Y', fund.fiveYearReturn),
+                  _buildExpenseRatio(),
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );
   }
   
-  Widget _buildInfoItem(String label, String value, Color? valueColor) {
+  Widget _buildReturnColumn(String period, double returnValue) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          label,
+          period,
           style: const TextStyle(
-            fontSize: 12,
             color: AppColors.textSecondary,
+            fontSize: 12,
           ),
         ),
-        const SizedBox(height: 4),
         Text(
-          value,
+          '${returnValue.toStringAsFixed(2)}%',
           style: TextStyle(
+            color: returnValue >= 0 ? Colors.green : Colors.red,
             fontSize: 14,
             fontWeight: FontWeight.w500,
-            color: valueColor ?? AppColors.textPrimary,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildExpenseRatio() {
+    return const Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Exp. Ratio',
+          style: TextStyle(
+            color: AppColors.textSecondary,
+            fontSize: 12,
+          ),
+        ),
+        Text(
+          '25.50%',
+          style: TextStyle(
+            color: AppColors.textPrimary,
+            fontSize: 14,
+            fontWeight: FontWeight.w500,
           ),
         ),
       ],

@@ -69,4 +69,24 @@ class MutualFundModel extends MutualFundEntity {
       'ytd': ytdReturn,
     };
   }
-} 
+
+  // Conversion helper from entity to model.
+  factory MutualFundModel.fromEntity(MutualFundEntity entity) {
+    return MutualFundModel(
+      isin: entity.isin,
+      name: entity.name,
+      category: entity.category,
+      nav: entity.nav,
+      oneYearReturn: entity.oneYearReturn,
+      threeYearReturn: entity.threeYearReturn,
+      fiveYearReturn: entity.fiveYearReturn,
+      description: entity.description,
+      amc: entity.amc,
+      symbol: entity.symbol,
+      currentPrice: entity.currentPrice,
+      changePercent: entity.changePercent,
+      netAssetValue: entity.netAssetValue,
+      ytdReturn: entity.ytdReturn,
+    );
+  }
+}

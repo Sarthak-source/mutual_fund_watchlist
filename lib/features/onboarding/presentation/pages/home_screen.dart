@@ -25,7 +25,8 @@ class HomeScreen extends StatelessWidget {
           case 1:
             // Wrap ChartPage with a scaffold that has an AppBar with back button
             currentPage = Scaffold(
-              appBar: AppBar(
+              appBar:  AppBar(
+        centerTitle: false,
                 backgroundColor: AppColors.background,
                 leading: IconButton(
                   icon: const Icon(Icons.arrow_back),
@@ -42,7 +43,8 @@ class HomeScreen extends StatelessWidget {
           case 2:
             // Wrap WatchlistPage with a scaffold that has an AppBar with back button
             currentPage = Scaffold(
-              appBar: AppBar(
+              appBar:  AppBar(
+        centerTitle: false,
                 backgroundColor: AppColors.background,
                 leading: IconButton(
                   icon: const Icon(Icons.arrow_back),

@@ -5,7 +5,7 @@ import 'app_colors.dart';
 /// App text styles used throughout the application
 class AppStyles {
   // Font Family
-  static const String fontFamily = 'Roboto';
+  static const String fontFamily = 'Gilroy';
   
   // Font Weights
   static const FontWeight light = FontWeight.w300;

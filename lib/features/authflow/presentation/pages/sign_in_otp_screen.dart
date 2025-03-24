@@ -16,9 +16,9 @@ class SignInOtpScreen extends StatefulWidget {
   final String phoneNumber;
   
   const SignInOtpScreen({
-    Key? key,
+    super.key,
     required this.phoneNumber,
-  }) : super(key: key);
+  });
 
   @override
   State<SignInOtpScreen> createState() => _SignInOtpScreenState();
@@ -72,26 +72,14 @@ class _SignInOtpScreenState extends State<SignInOtpScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const SizedBox(height: 32),
-                  Text(
-                    'Welcome Back,',
-                    style: AppStyles.h2,
-                  ),
-                  Row(
-                    children: [
-                      Text(
-                        'We Missed You! ',
-                        style: AppStyles.h2,
-                      ),
-                      const Icon(
-                        Icons.celebration,
-                        color: Colors.yellow,
-                      ),
-                    ],
-                  ),
+                 const Text(
+                            'Welcome Back, \nWe Missed You! 🎉',
+                            style: AppStyles.h2,
+                          ),
                   const SizedBox(height: 8),
                   Row(
                     children: [
-                      Text(
+                      const Text(
                         'Glad to have you back at ',
                         style: AppStyles.bodySmall,
                       ),
@@ -122,7 +110,7 @@ class _SignInOtpScreenState extends State<SignInOtpScreen> {
                           keyboardType: TextInputType.number,
                           maxLength: 1,
                           style: AppStyles.h3,
-                          decoration: InputDecoration(
+                          decoration: const InputDecoration(
                             counterText: '',
                             enabledBorder: UnderlineInputBorder(
                               borderSide: BorderSide(
@@ -149,7 +137,7 @@ class _SignInOtpScreenState extends State<SignInOtpScreen> {
                   const SizedBox(height: 20),
                   Row(
                     children: [
-                      Text(
+                      const Text(
                         "Didn't Receive OTP? ",
                         style: AppStyles.bodySmall,
                       ),
@@ -177,7 +165,8 @@ class _SignInOtpScreenState extends State<SignInOtpScreen> {
                       color: AppColors.textSecondary,
                     ),
                   ),
-                  const Spacer(),
+                   const SizedBox(height: 20),
+                  
                   AuthButton(
                     text: 'Proceed',
                     onPressed: () {
@@ -194,15 +183,16 @@ class _SignInOtpScreenState extends State<SignInOtpScreen> {
                     },
                     isLoading: state.status == AuthStatus.loading,
                   ),
-                  const SizedBox(height: 20),
+                  const Spacer(),
+                 
                   Center(
                     child: RichText(
                       text: TextSpan(
                         style: AppStyles.bodySmall.copyWith(
                           color: AppColors.textSecondary,
                         ),
-                        children: [
-                          const TextSpan(
+                        children: const [
+                          TextSpan(
                             text: 'By signing in, you agree to our ',
                           ),
                           TextSpan(
@@ -211,7 +201,7 @@ class _SignInOtpScreenState extends State<SignInOtpScreen> {
                               color: AppColors.primary,
                             ),
                           ),
-                          const TextSpan(
+                          TextSpan(
                             text: ' and ',
                           ),
                           TextSpan(

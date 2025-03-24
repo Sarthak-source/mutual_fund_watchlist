@@ -15,7 +15,8 @@ class HomeDashboardScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.background,
-      appBar: AppBar(
+      appBar:  AppBar(
+        centerTitle: false,
         title: const Text('Dashboard', style: AppStyles.h4),
         backgroundColor: Colors.transparent,
         elevation: 0,

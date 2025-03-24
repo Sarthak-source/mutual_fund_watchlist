@@ -40,7 +40,7 @@ class AuthTheme {
     shape: RoundedRectangleBorder(
       borderRadius: BorderRadius.circular(AppConstants.radiusMedium),
     ),
-    minimumSize: const Size(double.infinity, 54),
+    minimumSize: const Size(double.infinity, 35),
   );
 
   // Secondary button style

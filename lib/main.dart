@@ -23,9 +23,15 @@ import 'package:mutual_fund_watchlist/features/onboarding/domain/usecases/get_cu
 import 'package:mutual_fund_watchlist/features/onboarding/presentation/cubit/onboarding_cubit.dart';
 import 'package:mutual_fund_watchlist/features/onboarding/presentation/pages/home_screen.dart';
 import 'package:mutual_fund_watchlist/features/watchlist/data/datasources/mutual_fund_remote_data_source.dart';
+import 'package:mutual_fund_watchlist/features/watchlist/data/datasources/watchlist_local_data_source.dart';
 import 'package:mutual_fund_watchlist/features/watchlist/data/repositories/mutual_fund_repository_impl.dart';
+import 'package:mutual_fund_watchlist/features/watchlist/data/repositories/watchlist_repository_impl.dart';
 import 'package:mutual_fund_watchlist/features/watchlist/domain/repositories/mutual_fund_repository.dart';
+import 'package:mutual_fund_watchlist/features/watchlist/domain/repositories/watchlist_repository.dart';
+import 'package:mutual_fund_watchlist/features/watchlist/domain/usecases/delete_watchlist.dart';
 import 'package:mutual_fund_watchlist/features/watchlist/domain/usecases/get_mutual_funds_list_usecase.dart';
+import 'package:mutual_fund_watchlist/features/watchlist/domain/usecases/get_watchlists.dart';
+import 'package:mutual_fund_watchlist/features/watchlist/domain/usecases/save_watchlist.dart';
 import 'package:mutual_fund_watchlist/features/watchlist/presentation/cubit/watchlist_cubit.dart';
 import 'package:mutual_fund_watchlist/features/watchlist/presentation/pages/watchlist_page.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -154,10 +160,27 @@ void setupDependencyInjection() {
     )
   );
   
+  // Initialize Hive and register WatchlistLocalDataSource
+  sl.registerSingletonAsync<WatchlistLocalDataSource>(() async {
+    return await WatchlistLocalDataSourceImpl.init();
+  });
+  
+  // Register WatchlistRepository
+  sl.registerLazySingleton<WatchlistRepository>(
+    () => WatchlistRepositoryImpl(sl.get<WatchlistLocalDataSource>())
+  );
+  
   sl.registerLazySingleton(() => GetMutualFundsListUseCase(sl<MutualFundRepository>()));
   
+  // Register new watchlist use cases
+  sl.registerLazySingleton(() => GetWatchlists(sl<WatchlistRepository>()));
+  sl.registerLazySingleton(() => SaveWatchlist(sl<WatchlistRepository>()));
+  sl.registerLazySingleton(() => DeleteWatchlist(sl<WatchlistRepository>()));
+
   sl.registerFactory(() => WatchlistCubit(
-    getMutualFundsList: sl<GetMutualFundsListUseCase>(),
+    getWatchlists: sl<GetWatchlists>(),
+    saveWatchlist: sl<SaveWatchlist>(),
+    deleteWatchlist: sl<DeleteWatchlist>(),
   ));
 }
 
@@ -170,11 +193,11 @@ void main() async {
     anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRjYnJwdmxyZ2xwdnB2bnVkanRmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDI3NTQ4MTksImV4cCI6MjA1ODMzMDgxOX0.3uchb5YhFgKTUAE-g78HapfNmoyvO2KVaqcGNX5CY_s',
   );
 
-
-  
-  
   // Initialize dependencies
   setupDependencyInjection();
+  
+  // Wait for async dependencies to initialize
+  await sl.allReady();
   
   runApp(const MyApp());
 }

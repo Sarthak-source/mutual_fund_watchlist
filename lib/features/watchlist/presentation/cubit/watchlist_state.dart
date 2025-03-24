@@ -8,49 +8,37 @@ enum WatchlistStatus {
   error,
 }
 
-class WatchlistState extends Equatable {
-  final WatchlistStatus status;
-  final List<WatchlistEntity> watchlists;
-  final String? errorMessage;
-  final int selectedTabIndex;
+abstract class WatchlistState extends Equatable {
+  const WatchlistState();
+  
+  @override
+  List<Object?> get props => [];
+}
 
-  const WatchlistState({
-    required this.status,
+class WatchlistInitial extends WatchlistState {}
+
+class WatchlistLoading extends WatchlistState {}
+
+class WatchlistEmpty extends WatchlistState {}
+
+class WatchlistLoaded extends WatchlistState {
+  final List<WatchlistEntity> watchlists;
+  final WatchlistEntity selectedWatchlist;
+
+  const WatchlistLoaded({
     required this.watchlists,
-    this.errorMessage,
-    this.selectedTabIndex = 0,
+    required this.selectedWatchlist,
   });
 
-  factory WatchlistState.initial() {
-    return const WatchlistState(
-      status: WatchlistStatus.initial,
-      watchlists: [],
-    );
-  }
+  @override
+  List<Object?> get props => [watchlists, selectedWatchlist];
+}
 
-  bool get isEmpty => watchlists.isEmpty;
+class WatchlistError extends WatchlistState {
+  final String message;
 
-  WatchlistEntity? get selectedWatchlist {
-    if (watchlists.isEmpty || selectedTabIndex >= watchlists.length) {
-      return null;
-    }
-    return watchlists[selectedTabIndex];
-  }
-
-  WatchlistState copyWith({
-    WatchlistStatus? status,
-    List<WatchlistEntity>? watchlists,
-    String? errorMessage,
-    int? selectedTabIndex,
-  }) {
-    return WatchlistState(
-      status: status ?? this.status,
-      watchlists: watchlists ?? this.watchlists,
-      errorMessage: errorMessage ?? this.errorMessage,
-      selectedTabIndex: selectedTabIndex ?? this.selectedTabIndex,
-    );
-  }
+  const WatchlistError({required this.message});
 
   @override
-  List<Object?> get props => [status, watchlists, errorMessage, selectedTabIndex];
+  List<Object?> get props => [message];
 }

@@ -1,87 +1,147 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:mutual_fund_watchlist/features/watchlist/data/models/watchlist_model.dart';
+import 'package:mutual_fund_watchlist/features/watchlist/domain/entities/mutual_fund_entity.dart';
 import 'package:mutual_fund_watchlist/features/watchlist/domain/entities/watchlist_entity.dart';
-import 'package:mutual_fund_watchlist/features/watchlist/domain/usecases/get_mutual_funds_list_usecase.dart';
+import 'package:mutual_fund_watchlist/features/watchlist/domain/usecases/delete_watchlist.dart';
+import 'package:mutual_fund_watchlist/features/watchlist/domain/usecases/get_watchlists.dart';
+import 'package:mutual_fund_watchlist/features/watchlist/domain/usecases/save_watchlist.dart';
 import 'package:mutual_fund_watchlist/features/watchlist/presentation/cubit/watchlist_state.dart';
 import 'package:uuid/uuid.dart';
 
+
 class WatchlistCubit extends Cubit<WatchlistState> {
-  final GetMutualFundsListUseCase getMutualFundsList;
+  final GetWatchlists getWatchlists;
+  final SaveWatchlist saveWatchlist;
+  final DeleteWatchlist deleteWatchlist;
 
   WatchlistCubit({
-    required this.getMutualFundsList,
-  }) : super(WatchlistState.initial());
+    required this.getWatchlists,
+    required this.saveWatchlist,
+    required this.deleteWatchlist,
+  }) : super(WatchlistInitial());
 
   Future<void> loadWatchlists() async {
-    emit(state.copyWith(status: WatchlistStatus.loading));
+    emit(WatchlistLoading());
+    final result = await getWatchlists();
+    result.fold(
+      (failure) => emit(WatchlistError(message: failure.toString())),
+      (watchlists) {
+        if (watchlists.isEmpty) {
+          emit(WatchlistEmpty());
+        } else {
+          emit(WatchlistLoaded(
+            watchlists: watchlists,
+            selectedWatchlist: watchlists.first,
+          ));
+        }
+      },
+    );
+  }
 
-    try {
-      // In a real app, we would fetch watchlists from a repository
-      // For now, create a demo watchlist with funds from the API
-      final result = await getMutualFundsList();
-      
-      result.fold(
-        (failure) {
-          emit(state.copyWith(
-            status: WatchlistStatus.error,
-            errorMessage: failure.message,
-          ));
-        },
-        (funds) {
-          // Create a demo watchlist with the funds
-          final watchlist = WatchlistEntity(
-            id: const Uuid().v4(),
-            name: 'Watchlist 1',
-            funds: funds,
-            createdAt: DateTime.now(),
-            updatedAt: DateTime.now(),
-          );
-          
-          // Create an empty second watchlist
-          final emptyWatchlist = WatchlistEntity(
-            id: const Uuid().v4(),
-            name: 'Watchlist 2',
-            funds: [],
-            createdAt: DateTime.now(),
-            updatedAt: DateTime.now(),
-          );
-          
-          emit(state.copyWith(
-            status: WatchlistStatus.loaded,
-            watchlists: [watchlist, emptyWatchlist],
-          ));
-        },
-      );
-    } catch (e) {
-      emit(state.copyWith(
-        status: WatchlistStatus.error,
-        errorMessage: e.toString(),
+  Future<void> createWatchlist(String name) async {
+    emit(WatchlistLoading());
+    final newWatchlist = WatchlistEntity(
+      id: const Uuid().v4(),
+      name: name,
+      funds: const [],
+      createdAt: DateTime.now(),
+      updatedAt: DateTime.now(),
+    );
+
+    final result = await saveWatchlist(newWatchlist);
+    result.fold(
+      (failure) => emit(WatchlistError(message: failure.toString())),
+      (_) => loadWatchlists(),
+    );
+  }
+
+  Future<void> deleteWatchlistById(String id) async {
+    emit(WatchlistLoading());
+    final result = await deleteWatchlist(id);
+    result.fold(
+      (failure) => emit(WatchlistError(message: failure.toString())),
+      (_) => loadWatchlists(),
+    );
+  }
+
+  void selectWatchlist(WatchlistEntity watchlist) {
+    if (state is WatchlistLoaded) {
+      final currentState = state as WatchlistLoaded;
+      emit(WatchlistLoaded(
+        watchlists: currentState.watchlists,
+        selectedWatchlist: watchlist,
       ));
     }
   }
 
-  void changeTab(int index) {
-    if (index >= 0 && index < state.watchlists.length) {
-      emit(state.copyWith(selectedTabIndex: index));
+  Future<void> addFundToWatchlist(MutualFundEntity fund) async {
+  if (state is WatchlistLoaded) {
+    final currentState = state as WatchlistLoaded;
+    final selectedWatchlist = currentState.selectedWatchlist;
+    
+    if (selectedWatchlist.funds.any((f) => f.isin == fund.isin)) {
+      return;
     }
-  }
-
-  Future<void> createWatchlist(String name) async {
-    final newWatchlist = WatchlistEntity(
-      id: const Uuid().v4(),
-      name: name,
-      funds: [],
-      createdAt: DateTime.now(),
+    
+    final updatedFunds = [...selectedWatchlist.funds, fund];
+    final updatedWatchlist = WatchlistEntity(
+      id: selectedWatchlist.id,
+      name: selectedWatchlist.name,
+      funds: updatedFunds,
+      createdAt: selectedWatchlist.createdAt,
       updatedAt: DateTime.now(),
     );
     
-    final updatedWatchlists = List<WatchlistEntity>.from(state.watchlists)
-      ..add(newWatchlist);
-    
-    emit(state.copyWith(
-      watchlists: updatedWatchlists,
-      selectedTabIndex: updatedWatchlists.length - 1,
-    ));
-  }
+    // Convert to model
+    final updatedWatchlistModel = WatchlistModel.fromEntity(updatedWatchlist);
 
-  // Add more methods for watchlist management (add fund, remove fund, etc.)
+    final result = await saveWatchlist(updatedWatchlistModel);
+    result.fold(
+      (failure) => emit(WatchlistError(message: failure.toString())),
+      (_) => loadWatchlists(),
+    );
+  }
+}
+
+
+  Future<void> removeFundFromWatchlist(MutualFundEntity fund) async {
+    if (state is WatchlistLoaded) {
+      final currentState = state as WatchlistLoaded;
+      final selectedWatchlist = currentState.selectedWatchlist;
+      
+      final updatedFunds = selectedWatchlist.funds
+          .where((f) => f.isin != fund.isin)
+          .toList();
+          
+      final updatedWatchlist = WatchlistEntity(
+        id: selectedWatchlist.id,
+        name: selectedWatchlist.name,
+        funds: updatedFunds,
+        createdAt: selectedWatchlist.createdAt,
+        updatedAt: DateTime.now(),
+      );
+      
+      final result = await saveWatchlist(updatedWatchlist);
+      result.fold(
+        (failure) => emit(WatchlistError(message: failure.toString())),
+        (_) {
+          // If no funds left, reload all watchlists to update UI
+          if (updatedFunds.isEmpty) {
+            loadWatchlists();
+          } else {
+            // Otherwise, update the current state directly
+            emit(WatchlistLoaded(
+              watchlists: currentState.watchlists.map((w) {
+                if (w.id == updatedWatchlist.id) {
+                  return updatedWatchlist;
+                }
+                return w;
+              }).toList(),
+              selectedWatchlist: updatedWatchlist,
+            ));
+          }
+        },
+      );
+    }
+  }
 }
