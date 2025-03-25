@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mutual_fund_watchlist/core/utils/app_colors.dart';
@@ -25,7 +26,6 @@ import 'package:mutual_fund_watchlist/features/onboarding/presentation/cubit/onb
 import 'package:mutual_fund_watchlist/features/onboarding/presentation/pages/home_screen.dart';
 import 'package:mutual_fund_watchlist/features/watchlist/data/datasources/mutual_fund_remote_data_source.dart';
 import 'package:mutual_fund_watchlist/features/watchlist/data/datasources/watchlist_local_data_source.dart';
-import 'package:mutual_fund_watchlist/features/watchlist/data/repositories/mutual_fund_repository_impl.dart';
 import 'package:mutual_fund_watchlist/features/watchlist/data/repositories/watchlist_repository_impl.dart';
 import 'package:mutual_fund_watchlist/features/watchlist/domain/repositories/mutual_fund_repository.dart';
 import 'package:mutual_fund_watchlist/features/watchlist/domain/repositories/watchlist_repository.dart';
@@ -82,72 +82,76 @@ final _router = GoRouter(
 );
 
 void setupDependencyInjection() {
-  // External
-  final supabase = Supabase.instance.client;
-  sl.registerLazySingleton<SupabaseClient>(() => supabase);
+  // Register Dio
+  sl.registerLazySingleton<Dio>(() => Dio());
 
-  // Auth Data sources
+  // Register Supabase client
+  sl.registerLazySingleton<SupabaseClient>(
+    () => Supabase.instance.client,
+  );
+
+  // Register AuthRemoteDataSource
   sl.registerLazySingleton<AuthRemoteDataSource>(
-      () => AuthRemoteDataSourceImpl(supabaseClient: sl<SupabaseClient>()));
+    () => AuthRemoteDataSourceImpl(supabaseClient: sl<SupabaseClient>()),
+  );
 
-  // User Data sources
-  sl.registerLazySingleton<UserRemoteDataSource>(
-      () => UserRemoteDataSourceImpl());
-
-  // Repositories
+  // Register AuthRepository
   sl.registerLazySingleton<AuthRepository>(
-      () => AuthRepositoryImpl(remoteDataSource: sl<AuthRemoteDataSource>()));
+    () => AuthRepositoryImpl(remoteDataSource: sl<AuthRemoteDataSource>()),
+  );
 
-  sl.registerLazySingleton<UserRepository>(
-      () => UserRepositoryImpl(sl<UserRemoteDataSource>()));
-
-  // Auth UseCases
-  sl.registerLazySingleton(
-      () => SignInWithMobileOTPUseCase(sl<AuthRepository>()));
-
+  // Register Auth use cases
+  sl.registerLazySingleton(() => SignInWithMobileOTPUseCase(sl<AuthRepository>()));
   sl.registerLazySingleton(() => VerifyOTPUseCase(sl<AuthRepository>()));
-
   sl.registerLazySingleton(() => SignOutUseCase(sl<AuthRepository>()));
-
   sl.registerLazySingleton(() => GetCurrentUserUseCase(sl<AuthRepository>()));
-
   sl.registerLazySingleton(() => IsAuthenticatedUseCase(sl<AuthRepository>()));
 
-  // User UseCases
+  // Register AuthCubit
+  sl.registerFactory(
+    () => AuthCubit(
+      signInWithMobileOTPUseCase: sl<SignInWithMobileOTPUseCase>(),
+      verifyOTPUseCase: sl<VerifyOTPUseCase>(),
+      signOutUseCase: sl<SignOutUseCase>(),
+      getCurrentUserUseCase: sl<GetCurrentUserUseCase>(),
+      isAuthenticatedUseCase: sl<IsAuthenticatedUseCase>(),
+    ),
+  );
+
+  // Register UserRemoteDataSource
+  sl.registerLazySingleton<UserRemoteDataSource>(
+    () => UserRemoteDataSourceImpl(),
+  );
+
+  // Register UserRepository
+  sl.registerLazySingleton<UserRepository>(
+    () => UserRepositoryImpl(sl<UserRemoteDataSource>()),
+  );
+
+  // Register Onboarding use cases
   sl.registerLazySingleton(
-      () => onboarding.GetCurrentUserUseCase(sl<UserRepository>()));
+    () => onboarding.GetCurrentUserUseCase(sl<UserRepository>()),
+  );
 
-  // Cubits
-  sl.registerFactory(() => AuthCubit(
-        signInWithMobileOTPUseCase: sl<SignInWithMobileOTPUseCase>(),
-        verifyOTPUseCase: sl<VerifyOTPUseCase>(),
-        signOutUseCase: sl<SignOutUseCase>(),
-        getCurrentUserUseCase: sl<GetCurrentUserUseCase>(),
-        isAuthenticatedUseCase: sl<IsAuthenticatedUseCase>(),
-      ));
+  // Register OnboardingCubit
+  sl.registerFactory(
+    () => OnboardingCubit(
+      getCurrentUserUseCase: sl<onboarding.GetCurrentUserUseCase>(),
+    ),
+  );
 
-  sl.registerFactory(() => OnboardingCubit(
-        getCurrentUserUseCase: sl<onboarding.GetCurrentUserUseCase>(),
-      ));
+  // Register MutualFundRemoteDataSource
+  sl.registerLazySingleton<MutualFundRemoteDataSource>(
+    () => MutualFundRemoteDataSourceImpl(
+      dio: sl<Dio>(),
+      apiKey: dotenv.env['FINNHUB_API_KEY'] ?? '',
+    ),
+  );
 
   // Watchlist dependencies
-  sl.registerLazySingleton(() => Dio());
-
-  sl.registerLazySingleton<MutualFundRemoteDataSource>(
-      () => MutualFundRemoteDataSourceImpl(
-            dio: sl<Dio>(),
-            apiKey:
-                'cvgedrhr01qqg993v2i0cvgedrhr01qqg993v2ig', // Replace with your actual API key or use environment variable
-          ));
-
-  sl.registerLazySingleton<MutualFundRepository>(() => MutualFundRepositoryImpl(
-        remoteDataSource: sl<MutualFundRemoteDataSource>(),
-      ));
-
-  // Initialize Hive and register WatchlistLocalDataSource
-  sl.registerSingletonAsync<WatchlistLocalDataSource>(() async {
-    return await WatchlistLocalDataSourceImpl.init();
-  });
+  sl.registerSingletonAsync<WatchlistLocalDataSource>(
+    () => WatchlistLocalDataSourceImpl.init(),
+  );
 
   // Register WatchlistRepository
   sl.registerLazySingleton<WatchlistRepository>(
@@ -174,11 +178,13 @@ void setupDependencyInjection() {
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Initialize Supabase - replace with your own credentials
+  // Load environment variables
+  await dotenv.load(fileName: ".env");
+
+  // Initialize Supabase
   await Supabase.initialize(
-    url: 'https://dcbrpvlrglpvpvnudjtf.supabase.co',
-    anonKey:
-        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRjYnJwdmxyZ2xwdnB2bnVkanRmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDI3NTQ4MTksImV4cCI6MjA1ODMzMDgxOX0.3uchb5YhFgKTUAE-g78HapfNmoyvO2KVaqcGNX5CY_s',
+    url: dotenv.env['SUPABASE_URL'] ?? '',
+    anonKey: dotenv.env['SUPABASE_ANON_KEY'] ?? '',
   );
 
   // Initialize dependencies
