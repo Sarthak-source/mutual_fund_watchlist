@@ -26,6 +26,7 @@ import 'package:mutual_fund_watchlist/features/onboarding/presentation/cubit/onb
 import 'package:mutual_fund_watchlist/features/onboarding/presentation/pages/home_screen.dart';
 import 'package:mutual_fund_watchlist/features/watchlist/data/datasources/mutual_fund_remote_data_source.dart';
 import 'package:mutual_fund_watchlist/features/watchlist/data/datasources/watchlist_local_data_source.dart';
+import 'package:mutual_fund_watchlist/features/watchlist/data/repositories/mutual_fund_repository_impl.dart';
 import 'package:mutual_fund_watchlist/features/watchlist/data/repositories/watchlist_repository_impl.dart';
 import 'package:mutual_fund_watchlist/features/watchlist/domain/repositories/mutual_fund_repository.dart';
 import 'package:mutual_fund_watchlist/features/watchlist/domain/repositories/watchlist_repository.dart';
@@ -100,6 +101,19 @@ void setupDependencyInjection() {
     () => AuthRepositoryImpl(remoteDataSource: sl<AuthRemoteDataSource>()),
   );
 
+  // Register MutualFundRemoteDataSource
+  sl.registerLazySingleton<MutualFundRemoteDataSource>(
+    () => MutualFundRemoteDataSourceImpl(
+      dio: sl<Dio>(),
+      apiKey: dotenv.env['FINNHUB_API_KEY'] ?? '',
+    ),
+  );
+
+  // Register MutualFundRepository
+  sl.registerLazySingleton<MutualFundRepository>(
+    () => MutualFundRepositoryImpl(remoteDataSource: sl<MutualFundRemoteDataSource>()),
+  );
+
   // Register Auth use cases
   sl.registerLazySingleton(() => SignInWithMobileOTPUseCase(sl<AuthRepository>()));
   sl.registerLazySingleton(() => VerifyOTPUseCase(sl<AuthRepository>()));
@@ -137,14 +151,6 @@ void setupDependencyInjection() {
   sl.registerFactory(
     () => OnboardingCubit(
       getCurrentUserUseCase: sl<onboarding.GetCurrentUserUseCase>(),
-    ),
-  );
-
-  // Register MutualFundRemoteDataSource
-  sl.registerLazySingleton<MutualFundRemoteDataSource>(
-    () => MutualFundRemoteDataSourceImpl(
-      dio: sl<Dio>(),
-      apiKey: dotenv.env['FINNHUB_API_KEY'] ?? '',
     ),
   );
 
