@@ -6,14 +6,14 @@ import 'package:mutual_fund_watchlist/core/utils/app_styles.dart';
 /// Example of a widget matching the provided design screenshot.
 /// Replace `AppColors` and `AppStyles` with your own theme classes/values.
 class FundReturnsWidget extends StatefulWidget {
-  const FundReturnsWidget({super.key});
+  const FundReturnsWidget({Key? key}) : super(key: key);
 
   @override
   State<FundReturnsWidget> createState() => _FundReturnsWidgetState();
 }
 
 class _FundReturnsWidgetState extends State<FundReturnsWidget> {
-  double _investedAmount = 1.0; // 1L to 10L
+  double _investedAmount = 1.0; // Represents 1L to 10L
 
   @override
   Widget build(BuildContext context) {
@@ -26,7 +26,7 @@ class _FundReturnsWidgetState extends State<FundReturnsWidget> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Top row: "If you invested ₹1L" + toggle (1-Time / Monthly SIP)
+          // Top row: "If you invested ₹1L" and toggle buttons for "1-Time" and "Monthly SIP"
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -36,50 +36,9 @@ class _FundReturnsWidgetState extends State<FundReturnsWidget> {
                   color: AppColors.textSecondary,
                 ),
               ),
-              // Toggle Buttons for "1-Time" and "Monthly SIP"
-              Row(
-                children: [
-                  // 1-Time
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 8,
-                    ),
-                    decoration: BoxDecoration(
-                      color: AppColors.primary, 
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                    child: Text(
-                      '1-Time',
-                      style: AppStyles.bodySmall.copyWith(
-                        color: Colors.white,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  // Monthly SIP
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 8,
-                    ),
-                    decoration: BoxDecoration(
-                      color: Colors.transparent,
-                      border: Border.all(color: Colors.white24),
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                    child: Text(
-                      'Monthly SIP',
-                      style: AppStyles.bodySmall.copyWith(
-                        color: Colors.white,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
+              const CustomToggleButtonInline(),
             ],
           ),
-
           // Slider from 1L to 10L
           Slider(
             value: _investedAmount,
@@ -95,17 +54,10 @@ class _FundReturnsWidgetState extends State<FundReturnsWidget> {
               });
             },
           ),
-
           const SizedBox(height: 8),
-
-          // "If you invested ₹1L in this fund, your current value would be"
-          // In your screenshot, this line is present. Adjust as needed:
-          
-          const SizedBox(height: 8),
-          
-
-          // "This Fund's past returns" + "Profit % (Absolute Return)"
-          // plus the large green figure on the right (₹3.6L, 355.3%)
+          // Additional text can be inserted here if needed
+          //const SizedBox(height: 8),
+          // Row displaying fund return info and profit percentage
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -145,10 +97,8 @@ class _FundReturnsWidgetState extends State<FundReturnsWidget> {
               ),
             ],
           ),
-
           const SizedBox(height: 16),
-
-          // The 3-bar chart: Saving A/C, Category Avg., Direct Plan
+          // 3-bar chart: Saving A/C, Category Avg., Direct Plan
           SizedBox(
             height: 200,
             child: BarChart(
@@ -156,14 +106,8 @@ class _FundReturnsWidgetState extends State<FundReturnsWidget> {
                 alignment: BarChartAlignment.spaceAround,
                 minY: 0,
                 maxY: 5, // a bit above the largest bar (4.55)
-                gridData: FlGridData(
-                  show: true,
-                  drawVerticalLine: false,
-                  getDrawingHorizontalLine: (value) => FlLine(
-                    color: AppColors.divider,
-                    strokeWidth: 1,
-                  ),
-                ),
+                // Remove all grid lines by disabling the grid
+                gridData: const FlGridData(show: false),
                 borderData: FlBorderData(show: false),
                 titlesData: FlTitlesData(
                   leftTitles: const AxisTitles(
@@ -209,38 +153,38 @@ class _FundReturnsWidgetState extends State<FundReturnsWidget> {
                   ),
                 ),
                 barGroups: [
-                  // 1) Saving A/C => ~1.19
+                  // Bar for Saving A/C (approx. 1.19)
                   BarChartGroupData(
                     x: 0,
                     barRods: [
                       BarChartRodData(
                         toY: 1.19,
                         color: Colors.green,
-                        width: 22,
+                        width: 50,
                         borderRadius: BorderRadius.circular(2),
                       ),
                     ],
                   ),
-                  // 2) Category Avg => ~3.63
+                  // Bar for Category Avg. (approx. 3.63)
                   BarChartGroupData(
                     x: 1,
                     barRods: [
                       BarChartRodData(
                         toY: 3.63,
                         color: Colors.green,
-                        width: 22,
+                        width: 50,
                         borderRadius: BorderRadius.circular(2),
                       ),
                     ],
                   ),
-                  // 3) Direct Plan => ~4.55
+                  // Bar for Direct Plan (approx. 4.55)
                   BarChartGroupData(
                     x: 2,
                     barRods: [
                       BarChartRodData(
                         toY: 4.55,
                         color: Colors.green,
-                        width: 22,
+                        width: 50,
                         borderRadius: BorderRadius.circular(2),
                       ),
                     ],
@@ -250,6 +194,90 @@ class _FundReturnsWidgetState extends State<FundReturnsWidget> {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+
+
+class CustomToggleButtonInline extends StatefulWidget {
+  const CustomToggleButtonInline({super.key});
+
+  @override
+  CustomToggleButtonInlineState createState() => CustomToggleButtonInlineState();
+}
+
+class CustomToggleButtonInlineState extends State<CustomToggleButtonInline> {
+  double xAlign = -1; // left selected by default
+
+  @override
+  Widget build(BuildContext context) {
+    const double toggleWidth = 120.0;
+    const double toggleHeight = 30.0;
+    const double halfWidth = toggleWidth / 2;
+
+    return Container(
+      width: toggleWidth,
+      height: toggleHeight,
+      decoration: BoxDecoration(
+        color: Colors.transparent,
+        borderRadius: BorderRadius.circular(4.0),
+        border: Border.all(color: Colors.grey,width: 0.4), // White border for the whole button
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(1.0),
+        child: Stack(
+          children: [
+            AnimatedAlign(
+              alignment: Alignment(xAlign, 0),
+              duration: const Duration(milliseconds: 300),
+              child: Container(
+                width: halfWidth,
+                height: toggleHeight,
+                color: AppColors.primary, // Primary color for active selection
+              ),
+            ),
+            GestureDetector(
+              onTap: () {
+                setState(() {
+                  xAlign = -1;
+                });
+              },
+              child: Align(
+                alignment: const Alignment(-1, 0),
+                child: Container(
+                  width: halfWidth,
+                  height: toggleHeight,
+                  alignment: Alignment.center,
+                  child: Text(
+                    '1-Time',
+                    style: AppStyles.bodySmall.copyWith(color: Colors.white,fontSize: 10), // Unselected text color white
+                  ),
+                ),
+              ),
+            ),
+            GestureDetector(
+              onTap: () {
+                setState(() {
+                  xAlign = 1;
+                });
+              },
+              child: Align(
+                alignment: const Alignment(1, 0),
+                child: Container(
+                  width: halfWidth,
+                  height: toggleHeight,
+                  alignment: Alignment.center,
+                  child: Text(
+                    'Monthly SIP',
+                    style: AppStyles.bodySmall.copyWith(color: Colors.white,fontSize: 10), // Unselected text color white
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

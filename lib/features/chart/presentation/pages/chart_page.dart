@@ -27,11 +27,11 @@ class _ChartPageState extends State<ChartPage> {
   final List<FlSpot> _niftyMidcapData = [
     const FlSpot(0, 1.0),
     const FlSpot(1, 1.6),
-    const FlSpot(2, 3),
+    const FlSpot(2, 3.0),
     const FlSpot(3, 1.9),
     const FlSpot(4, 2.8),
     const FlSpot(5, 2.4),
-    const FlSpot(6, 2),
+    const FlSpot(6, 2.0),
   ];
 
   // Example bar chart data (e.g. monthly returns)
@@ -107,23 +107,21 @@ class _ChartPageState extends State<ChartPage> {
                     margin: const EdgeInsets.symmetric(horizontal: 8),
                   ),
                   // Second column: Current Value
-                  const Expanded(
+                  Expanded(
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         Text(
                           'Current Value',
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: Colors.grey,
+                          style: AppStyles.caption.copyWith(
+                            color: AppColors.textSecondary,
                           ),
                         ),
-                        SizedBox(height: 4),
+                        const SizedBox(height: 4),
                         Text(
                           '₹1.28k',
-                          style: TextStyle(
-                            fontSize: 14,
+                          style: AppStyles.bodyMedium.copyWith(
                             fontWeight: FontWeight.bold,
                           ),
                         ),
@@ -138,38 +136,35 @@ class _ChartPageState extends State<ChartPage> {
                     margin: const EdgeInsets.symmetric(horizontal: 8),
                   ),
                   // Third column: Total Gain
-                  const Expanded(
+                  Expanded(
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         Text(
                           'Total Gain',
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: Colors.grey,
+                          style: AppStyles.caption.copyWith(
+                            color: AppColors.textSecondary,
                           ),
                         ),
-                        SizedBox(height: 4),
+                        const SizedBox(height: 4),
                         // Value and percentage in a row
                         Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             Text(
                               '₹-220.16',
-                              style: TextStyle(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.white,
-                                  overflow: TextOverflow.ellipsis),
+                              style: AppStyles.bodyMedium.copyWith(
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                              ),
                             ),
-                            SizedBox(width: 5),
+                            const SizedBox(width: 5),
                             Text(
                               '-14.7',
-                              style: TextStyle(
-                                  fontSize: 12,
-                                  color: Colors.red,
-                                  overflow: TextOverflow.ellipsis),
+                              style: AppStyles.caption.copyWith(
+                                color: Colors.red,
+                              ),
                             ),
                           ],
                         ),
@@ -180,20 +175,88 @@ class _ChartPageState extends State<ChartPage> {
               ),
             ),
 
-            const SizedBox(height: 16),
-            const Divider(color: AppColors.divider),
-            const SizedBox(height: 16),
+            const SizedBox(height: 22),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    // Your Investments
+                    Row(
+                      children: [
+                        // Colored line
+                        Container(
+                          width: 12,
+                          height: 2,
+                          color: Colors.blueAccent, // Blue color
+                        ),
+                        const SizedBox(width: 6),
+                        // Text
+                        Text(
+                          'Your Investments -19.75%',
+                          style: AppStyles.caption.copyWith(
+                            fontSize: 14,
+                            color: Colors.blueAccent, // Same blue color
+                          ),
+                        ),
+                      ],
+                    ),
+
+                    // Nifty Midcap 150
+                    Row(
+                      children: [
+                        // Colored line
+                        Container(
+                          width: 12,
+                          height: 2,
+                          color: Colors.orangeAccent, // Yellow color
+                        ),
+                        const SizedBox(width: 6),
+                        // Text
+                        Text(
+                          'Nifty Midcap 150 -12.97%',
+                          style: AppStyles.caption.copyWith(
+                            fontSize: 14,
+                            color: Colors.orangeAccent, // Same yellow color
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  decoration: BoxDecoration(
+                    border: Border.all(color: const Color(0xFF4F4F4F)),
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                  child: Text(
+                    'NAV',
+                    style: AppStyles.caption.copyWith(
+                      color: const Color.fromARGB(255, 173, 173, 173),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 22),
 
             // ---- CHART SECTION (TWO LINES) ----
             SizedBox(
               height: 220,
               child: LineChart(
                 LineChartData(
+                  // FIX: Set these to ensure we only label x=0..6
+                  minX: 0,
+                  maxX: 6,
+
                   backgroundColor: Colors.transparent,
                   gridData: const FlGridData(
                     show: true,
                     drawVerticalLine: false,
-                    drawHorizontalLine: false, // Disable horizontal lines here
+                    drawHorizontalLine: false, // Disable horizontal lines
                   ),
                   borderData: FlBorderData(show: false),
                   titlesData: FlTitlesData(
@@ -201,28 +264,41 @@ class _ChartPageState extends State<ChartPage> {
                     bottomTitles: AxisTitles(
                       sideTitles: SideTitles(
                         showTitles: true,
+                        // FIX: Set interval so it only shows 0,2,4,6
+                        interval: 2,
                         reservedSize: 22,
                         getTitlesWidget: (double value, TitleMeta meta) {
-                          String text = '';
                           switch (value.toInt()) {
                             case 0:
-                              text = '2021';
-                              break;
+                              return Text(
+                                '2021',
+                                style: AppStyles.bodySmall.copyWith(
+                                  color: AppColors.textSecondary,
+                                ),
+                              );
                             case 2:
-                              text = '2022';
-                              break;
+                              return Text(
+                                '2022',
+                                style: AppStyles.bodySmall.copyWith(
+                                  color: AppColors.textSecondary,
+                                ),
+                              );
                             case 4:
-                              text = '2023';
-                              break;
+                              return Text(
+                                '2023',
+                                style: AppStyles.bodySmall.copyWith(
+                                  color: AppColors.textSecondary,
+                                ),
+                              );
                             case 6:
-                              text = '2024';
-                              break;
+                              return Text(
+                                '2024',
+                                style: AppStyles.bodySmall.copyWith(
+                                  color: AppColors.textSecondary,
+                                ),
+                              );
                           }
-                          return Text(
-                            text,
-                            style: AppStyles.bodySmall
-                                .copyWith(color: AppColors.textSecondary),
-                          );
+                          return const SizedBox.shrink();
                         },
                       ),
                     ),
@@ -277,8 +353,7 @@ class _ChartPageState extends State<ChartPage> {
                   color: Colors.grey, // Set the color of the border
                   width: 0.4, // Set the width of the border
                 ),
-                borderRadius:
-                    BorderRadius.circular(8), // Optional: rounded corners
+                borderRadius: BorderRadius.circular(8), // Rounded corners
               ),
               padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 4),
               child: Row(
@@ -327,7 +402,6 @@ class _ChartPageState extends State<ChartPage> {
 
             // ---- INVESTMENT INFO SECTION ----
             const FundReturnsWidget(),
-
             const SizedBox(height: 16),
           ],
         ),
@@ -337,7 +411,7 @@ class _ChartPageState extends State<ChartPage> {
         child: Row(
           children: [
             Expanded(
-              child: ElevatedButton(
+              child: ElevatedButton.icon(
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.primary,
                   padding: const EdgeInsets.symmetric(vertical: 16),
@@ -348,12 +422,17 @@ class _ChartPageState extends State<ChartPage> {
                 onPressed: () {
                   // SELL action
                 },
-                child: const Text('Sell', style: AppStyles.button),
+                icon: const Icon(
+                  Icons.arrow_downward,
+                  color: AppColors.textPrimary,
+                  size: 14,
+                ),
+                label: const Text('Sell', style: AppStyles.button),
               ),
             ),
             const SizedBox(width: 16),
             Expanded(
-              child: ElevatedButton(
+              child: ElevatedButton.icon(
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.primary,
                   padding: const EdgeInsets.symmetric(vertical: 16),
@@ -364,74 +443,16 @@ class _ChartPageState extends State<ChartPage> {
                 onPressed: () {
                   // INVEST MORE action
                 },
-                child: const Text('Invest More', style: AppStyles.button),
+                icon: const Icon(
+                  Icons.arrow_upward,
+                  color: AppColors.textPrimary,
+                  size: 14,
+                ),
+                label: const Text('Invest More', style: AppStyles.button),
               ),
             ),
           ],
         ),
-      ),
-    );
-  }
-}
-
-// ---- SUPPORTING WIDGETS ----
-
-class _StatTile extends StatelessWidget {
-  final String label;
-  final String value;
-  final String change;
-
-  const _StatTile({
-    super.key,
-    required this.label,
-    required this.value,
-    required this.change,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    bool isNegative = change.contains('-');
-    Color changeColor = isNegative ? Colors.redAccent : Colors.greenAccent;
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(label,
-            style:
-                AppStyles.bodySmall.copyWith(color: AppColors.textSecondary)),
-        const SizedBox(height: 4),
-        Text(value, style: AppStyles.h4.copyWith(color: AppColors.textPrimary)),
-        const SizedBox(height: 2),
-        Text(
-          change,
-          style: AppStyles.bodySmall.copyWith(color: changeColor),
-        ),
-      ],
-    );
-  }
-}
-
-class _ReturnStat extends StatelessWidget {
-  final String label;
-  final String value;
-
-  const _ReturnStat({super.key, required this.label, required this.value});
-
-  @override
-  Widget build(BuildContext context) {
-    return Expanded(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(label,
-              style:
-                  AppStyles.bodySmall.copyWith(color: AppColors.textSecondary)),
-          const SizedBox(height: 4),
-          Text(
-            value,
-            style: AppStyles.h4.copyWith(color: AppColors.textPrimary),
-          ),
-        ],
       ),
     );
   }

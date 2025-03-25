@@ -35,6 +35,10 @@ class MutualFundCard extends StatelessWidget {
       child: Container(
         margin: const EdgeInsets.only(bottom: 12),
         decoration: BoxDecoration(
+          border: Border.all(
+    color: Colors.grey, // Same color as Divider
+    width: 0.2, // Same thickness as Divider
+  ),
           color: AppColors.cardBackground,
           borderRadius: BorderRadius.circular(12),
         ),
@@ -76,7 +80,9 @@ class MutualFundCard extends StatelessWidget {
                   ),
                 ],
               ),
-              const SizedBox(height: 12),
+              
+               const Divider(color: Colors.grey, thickness: 0.4),
+
               Text(
                 'Others | ${fund.category}',
                 style: AppStyles.bodySmall.copyWith(
@@ -123,7 +129,7 @@ class MutualFundCard extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
+        const Text(
           'Exp. Ratio',
           style: AppStyles.caption,
         ),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 /// Custom bottom navigation bar for the app
 class BottomNavBar extends StatelessWidget {
@@ -24,9 +25,9 @@ class BottomNavBar extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
-          _buildNavItem(0, 'Home', Icons.home_outlined, Icons.home),
-          _buildNavItem(1, 'Charts', Icons.bar_chart_outlined, Icons.bar_chart),
-          _buildNavItem(2, 'Watchlist', Icons.bookmark_border_outlined, Icons.bookmark),
+          _buildNavItem(0, 'Home', 'assets/home.svg'),
+          _buildNavItem(1, 'Charts', 'assets/chat.svg'),
+          _buildNavItem(2, 'Watchlist', 'assets/watchlist.svg'),
         ],
       ),
     );
@@ -35,8 +36,7 @@ class BottomNavBar extends StatelessWidget {
   Widget _buildNavItem(
     int index,
     String label,
-    IconData icon,
-    IconData activeIcon,
+    String svgPath,
   ) {
     final isSelected = currentIndex == index;
     
@@ -45,10 +45,14 @@ class BottomNavBar extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(
-            isSelected ? activeIcon : icon,
-            color: isSelected ? Colors.blue : Colors.grey,
-            size: 24,
+          SvgPicture.asset(
+            svgPath,
+            width: 24,
+            height: 24,
+            colorFilter: ColorFilter.mode(
+              isSelected ? Colors.blue : Colors.grey,
+              BlendMode.srcIn,
+            ),
           ),
           const SizedBox(height: 4),
           Text(
