@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mutual_fund_watchlist/core/utils/app_colors.dart';
+import 'package:mutual_fund_watchlist/core/utils/app_styles.dart';
 import 'package:mutual_fund_watchlist/features/chart/presentation/pages/chart_page.dart';
 import 'package:mutual_fund_watchlist/features/onboarding/presentation/cubit/onboarding_cubit.dart';
 import 'package:mutual_fund_watchlist/features/onboarding/presentation/cubit/onboarding_state.dart';
@@ -25,17 +26,20 @@ class HomeScreen extends StatelessWidget {
           case 1:
             // Wrap ChartPage with a scaffold that has an AppBar with back button
             currentPage = Scaffold(
-              appBar:  AppBar(
-        centerTitle: false,
+              appBar: AppBar(
+                centerTitle: false,
                 backgroundColor: AppColors.background,
                 leading: IconButton(
-                  icon: const Icon(Icons.arrow_back),
+                  icon: const Icon(Icons.arrow_back, color: Colors.white),
                   onPressed: () {
                     // Navigate back to home by setting tab index to 0
                     context.read<OnboardingCubit>().changeTab(0);
                   },
                 ),
-                title: const Text('Chart'),
+                title: Text(
+                  'Chart',
+                  style: AppStyles.h4.copyWith(color: Colors.white),
+                ),
               ),
               body: const ChartPage(),
             );
@@ -43,17 +47,20 @@ class HomeScreen extends StatelessWidget {
           case 2:
             // Wrap WatchlistPage with a scaffold that has an AppBar with back button
             currentPage = Scaffold(
-              appBar:  AppBar(
-        centerTitle: false,
+              appBar: AppBar(
+                centerTitle: false,
                 backgroundColor: AppColors.background,
                 leading: IconButton(
-                  icon: const Icon(Icons.arrow_back),
+                  icon: const Icon(Icons.arrow_back, color: Colors.white),
                   onPressed: () {
                     // Navigate back to home by setting tab index to 0
                     context.read<OnboardingCubit>().changeTab(0);
                   },
                 ),
-                title: const Text('Watchlist'),
+                title: Text(
+                  'Watchlist',
+                  style: AppStyles.h4.copyWith(color: Colors.white),
+                ),
               ),
               body: const WatchlistPage(),
             );

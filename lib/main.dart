@@ -19,7 +19,8 @@ import 'package:mutual_fund_watchlist/features/authflow/presentation/pages/welco
 import 'package:mutual_fund_watchlist/features/onboarding/data/datasources/user_remote_data_source.dart';
 import 'package:mutual_fund_watchlist/features/onboarding/data/repositories/user_repository_impl.dart';
 import 'package:mutual_fund_watchlist/features/onboarding/domain/repositories/user_repository.dart';
-import 'package:mutual_fund_watchlist/features/onboarding/domain/usecases/get_current_user_usecase.dart' as onboarding;
+import 'package:mutual_fund_watchlist/features/onboarding/domain/usecases/get_current_user_usecase.dart'
+    as onboarding;
 import 'package:mutual_fund_watchlist/features/onboarding/presentation/cubit/onboarding_cubit.dart';
 import 'package:mutual_fund_watchlist/features/onboarding/presentation/pages/home_screen.dart';
 import 'package:mutual_fund_watchlist/features/watchlist/data/datasources/mutual_fund_remote_data_source.dart';
@@ -32,6 +33,7 @@ import 'package:mutual_fund_watchlist/features/watchlist/domain/usecases/delete_
 import 'package:mutual_fund_watchlist/features/watchlist/domain/usecases/get_mutual_funds_list_usecase.dart';
 import 'package:mutual_fund_watchlist/features/watchlist/domain/usecases/get_watchlists.dart';
 import 'package:mutual_fund_watchlist/features/watchlist/domain/usecases/save_watchlist.dart';
+import 'package:mutual_fund_watchlist/features/watchlist/domain/usecases/search_mutual_funds_usecase.dart';
 import 'package:mutual_fund_watchlist/features/watchlist/presentation/cubit/watchlist_cubit.dart';
 import 'package:mutual_fund_watchlist/features/watchlist/presentation/pages/watchlist_page.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -83,119 +85,105 @@ void setupDependencyInjection() {
   // External
   final supabase = Supabase.instance.client;
   sl.registerLazySingleton<SupabaseClient>(() => supabase);
-  
+
   // Auth Data sources
   sl.registerLazySingleton<AuthRemoteDataSource>(
-    () => AuthRemoteDataSourceImpl(supabaseClient: sl<SupabaseClient>())
-  );
-  
+      () => AuthRemoteDataSourceImpl(supabaseClient: sl<SupabaseClient>()));
+
   // User Data sources
-  sl.registerLazySingleton<UserRemoteDataSource>(() => UserRemoteDataSourceImpl());
-  
+  sl.registerLazySingleton<UserRemoteDataSource>(
+      () => UserRemoteDataSourceImpl());
+
   // Repositories
   sl.registerLazySingleton<AuthRepository>(
-    () => AuthRepositoryImpl(remoteDataSource: sl<AuthRemoteDataSource>())
-  );
-  
+      () => AuthRepositoryImpl(remoteDataSource: sl<AuthRemoteDataSource>()));
+
   sl.registerLazySingleton<UserRepository>(
-    () => UserRepositoryImpl(sl<UserRemoteDataSource>())
-  );
+      () => UserRepositoryImpl(sl<UserRemoteDataSource>()));
 
   // Auth UseCases
   sl.registerLazySingleton(
-    () => SignInWithMobileOTPUseCase(sl<AuthRepository>())
-  );
-  
-  sl.registerLazySingleton(
-    () => VerifyOTPUseCase(sl<AuthRepository>())
-  );
-  
-  sl.registerLazySingleton(
-    () => SignOutUseCase(sl<AuthRepository>())
-  );
-  
-  sl.registerLazySingleton(
-    () => GetCurrentUserUseCase(sl<AuthRepository>())
-  );
-  
-  sl.registerLazySingleton(
-    () => IsAuthenticatedUseCase(sl<AuthRepository>())
-  );
-  
+      () => SignInWithMobileOTPUseCase(sl<AuthRepository>()));
+
+  sl.registerLazySingleton(() => VerifyOTPUseCase(sl<AuthRepository>()));
+
+  sl.registerLazySingleton(() => SignOutUseCase(sl<AuthRepository>()));
+
+  sl.registerLazySingleton(() => GetCurrentUserUseCase(sl<AuthRepository>()));
+
+  sl.registerLazySingleton(() => IsAuthenticatedUseCase(sl<AuthRepository>()));
+
   // User UseCases
   sl.registerLazySingleton(
-    () => onboarding.GetCurrentUserUseCase(sl<UserRepository>())
-  );
+      () => onboarding.GetCurrentUserUseCase(sl<UserRepository>()));
 
   // Cubits
-  sl.registerFactory(
-    () => AuthCubit(
-      signInWithMobileOTPUseCase: sl<SignInWithMobileOTPUseCase>(),
-      verifyOTPUseCase: sl<VerifyOTPUseCase>(),
-      signOutUseCase: sl<SignOutUseCase>(),
-      getCurrentUserUseCase: sl<GetCurrentUserUseCase>(),
-      isAuthenticatedUseCase: sl<IsAuthenticatedUseCase>(),
-    )
-  );
-  
-  sl.registerFactory(
-    () => OnboardingCubit(
-      getCurrentUserUseCase: sl<onboarding.GetCurrentUserUseCase>(),
-    )
-  );
+  sl.registerFactory(() => AuthCubit(
+        signInWithMobileOTPUseCase: sl<SignInWithMobileOTPUseCase>(),
+        verifyOTPUseCase: sl<VerifyOTPUseCase>(),
+        signOutUseCase: sl<SignOutUseCase>(),
+        getCurrentUserUseCase: sl<GetCurrentUserUseCase>(),
+        isAuthenticatedUseCase: sl<IsAuthenticatedUseCase>(),
+      ));
+
+  sl.registerFactory(() => OnboardingCubit(
+        getCurrentUserUseCase: sl<onboarding.GetCurrentUserUseCase>(),
+      ));
 
   // Watchlist dependencies
   sl.registerLazySingleton(() => Dio());
-  
+
   sl.registerLazySingleton<MutualFundRemoteDataSource>(
-    () => MutualFundRemoteDataSourceImpl(
-      dio: sl<Dio>(),
-      apiKey: 'cvgedrhr01qqg993v2i0cvgedrhr01qqg993v2ig', // Replace with your actual API key or use environment variable
-    )
-  );
-  
-  sl.registerLazySingleton<MutualFundRepository>(
-    () => MutualFundRepositoryImpl(
-      remoteDataSource: sl<MutualFundRemoteDataSource>(),
-    )
-  );
-  
+      () => MutualFundRemoteDataSourceImpl(
+            dio: sl<Dio>(),
+            apiKey:
+                'cvgedrhr01qqg993v2i0cvgedrhr01qqg993v2ig', // Replace with your actual API key or use environment variable
+          ));
+
+  sl.registerLazySingleton<MutualFundRepository>(() => MutualFundRepositoryImpl(
+        remoteDataSource: sl<MutualFundRemoteDataSource>(),
+      ));
+
   // Initialize Hive and register WatchlistLocalDataSource
   sl.registerSingletonAsync<WatchlistLocalDataSource>(() async {
     return await WatchlistLocalDataSourceImpl.init();
   });
-  
+
   // Register WatchlistRepository
   sl.registerLazySingleton<WatchlistRepository>(
-    () => WatchlistRepositoryImpl(sl.get<WatchlistLocalDataSource>())
-  );
-  
-  sl.registerLazySingleton(() => GetMutualFundsListUseCase(sl<MutualFundRepository>()));
-  
+      () => WatchlistRepositoryImpl(sl.get<WatchlistLocalDataSource>()));
+
+  sl.registerLazySingleton(
+      () => GetMutualFundsListUseCase(sl<MutualFundRepository>()));
+
   // Register new watchlist use cases
   sl.registerLazySingleton(() => GetWatchlists(sl<WatchlistRepository>()));
   sl.registerLazySingleton(() => SaveWatchlist(sl<WatchlistRepository>()));
   sl.registerLazySingleton(() => DeleteWatchlist(sl<WatchlistRepository>()));
+  sl.registerLazySingleton(
+      () => SearchMutualFundsUseCase(sl<MutualFundRepository>()));
 
   sl.registerFactory(() => WatchlistCubit(
-    getWatchlists: sl<GetWatchlists>(),
-    saveWatchlist: sl<SaveWatchlist>(),
-    deleteWatchlist: sl<DeleteWatchlist>(),
-  ));
+        getWatchlists: sl<GetWatchlists>(),
+        saveWatchlist: sl<SaveWatchlist>(),
+        deleteWatchlist: sl<DeleteWatchlist>(),
+        searchMutualFunds: sl<SearchMutualFundsUseCase>(),
+      ));
 }
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  
+
   // Initialize Supabase - replace with your own credentials
   await Supabase.initialize(
     url: 'https://dcbrpvlrglpvpvnudjtf.supabase.co',
-    anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRjYnJwdmxyZ2xwdnB2bnVkanRmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDI3NTQ4MTksImV4cCI6MjA1ODMzMDgxOX0.3uchb5YhFgKTUAE-g78HapfNmoyvO2KVaqcGNX5CY_s',
+    anonKey:
+        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRjYnJwdmxyZ2xwdnB2bnVkanRmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDI3NTQ4MTksImV4cCI6MjA1ODMzMDgxOX0.3uchb5YhFgKTUAE-g78HapfNmoyvO2KVaqcGNX5CY_s',
   );
 
   // Initialize dependencies
   setupDependencyInjection();
-  
+
   // Wait for async dependencies to initialize
   await sl.allReady();
   
@@ -236,4 +224,3 @@ class MyApp extends StatelessWidget {
     );
   }
 }
-

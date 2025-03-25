@@ -1,10 +1,10 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:mutual_fund_watchlist/features/watchlist/data/models/watchlist_model.dart';
 import 'package:mutual_fund_watchlist/features/watchlist/domain/entities/mutual_fund_entity.dart';
 import 'package:mutual_fund_watchlist/features/watchlist/domain/entities/watchlist_entity.dart';
 import 'package:mutual_fund_watchlist/features/watchlist/domain/usecases/delete_watchlist.dart';
 import 'package:mutual_fund_watchlist/features/watchlist/domain/usecases/get_watchlists.dart';
 import 'package:mutual_fund_watchlist/features/watchlist/domain/usecases/save_watchlist.dart';
+import 'package:mutual_fund_watchlist/features/watchlist/domain/usecases/search_mutual_funds_usecase.dart';
 import 'package:mutual_fund_watchlist/features/watchlist/presentation/cubit/watchlist_state.dart';
 import 'package:uuid/uuid.dart';
 
@@ -13,11 +13,13 @@ class WatchlistCubit extends Cubit<WatchlistState> {
   final GetWatchlists getWatchlists;
   final SaveWatchlist saveWatchlist;
   final DeleteWatchlist deleteWatchlist;
+  final SearchMutualFundsUseCase searchMutualFunds;
 
   WatchlistCubit({
     required this.getWatchlists,
     required this.saveWatchlist,
     required this.deleteWatchlist,
+    required this.searchMutualFunds,
   }) : super(WatchlistInitial());
 
   Future<void> loadWatchlists() async {
@@ -74,35 +76,28 @@ class WatchlistCubit extends Cubit<WatchlistState> {
     }
   }
 
-  Future<void> addFundToWatchlist(MutualFundEntity fund) async {
-  if (state is WatchlistLoaded) {
-    final currentState = state as WatchlistLoaded;
-    final selectedWatchlist = currentState.selectedWatchlist;
-    
-    if (selectedWatchlist.funds.any((f) => f.isin == fund.isin)) {
-      return;
+  Future<void> addFundToWatchlist(MutualFundEntity fund, {required int tabIndex}) async {
+    if (state is WatchlistLoaded) {
+      final currentState = state as WatchlistLoaded;
+      final currentWatchlist = currentState.watchlists[tabIndex];
+      
+      if (currentWatchlist.funds.any((f) => f.isin == fund.isin)) {
+        return;
+      }
+      
+      final updatedFunds = [...currentWatchlist.funds, fund];
+      final updatedWatchlist = currentWatchlist.copyWith(
+        funds: updatedFunds,
+        updatedAt: DateTime.now(),
+      );
+      
+      final result = await saveWatchlist(updatedWatchlist);
+      result.fold(
+        (failure) => emit(WatchlistError(message: failure.toString())),
+        (_) => loadWatchlists(),
+      );
     }
-    
-    final updatedFunds = [...selectedWatchlist.funds, fund];
-    final updatedWatchlist = WatchlistEntity(
-      id: selectedWatchlist.id,
-      name: selectedWatchlist.name,
-      funds: updatedFunds,
-      createdAt: selectedWatchlist.createdAt,
-      updatedAt: DateTime.now(),
-    );
-    
-    // Convert to model
-    final updatedWatchlistModel = WatchlistModel.fromEntity(updatedWatchlist);
-
-    final result = await saveWatchlist(updatedWatchlistModel);
-    result.fold(
-      (failure) => emit(WatchlistError(message: failure.toString())),
-      (_) => loadWatchlists(),
-    );
   }
-}
-
 
   Future<void> removeFundFromWatchlist(MutualFundEntity fund) async {
     if (state is WatchlistLoaded) {
@@ -143,5 +138,29 @@ class WatchlistCubit extends Cubit<WatchlistState> {
         },
       );
     }
+  }
+
+  Future<List<MutualFundEntity>> searchFunds(String query) async {
+    final result = await searchMutualFunds(query);
+    return result.fold(
+      (failure) => [],
+      (funds) => funds,
+    );
+  }
+
+  Future<void> removeWatchlist(String id) async {
+    final result = await deleteWatchlist(id);
+    result.fold(
+      (failure) => emit(WatchlistError(message: failure.toString())),
+      (_) => loadWatchlists(),
+    );
+  }
+
+  Future<void> updateWatchlist(WatchlistEntity watchlist) async {
+    final result = await saveWatchlist(watchlist);
+    result.fold(
+      (failure) => emit(WatchlistError(message: failure.toString())),
+      (_) => loadWatchlists(),
+    );
   }
 }

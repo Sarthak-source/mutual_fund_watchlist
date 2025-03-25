@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mutual_fund_watchlist/core/utils/app_colors.dart';
+import 'package:mutual_fund_watchlist/core/utils/app_styles.dart';
 import 'package:mutual_fund_watchlist/features/watchlist/domain/entities/mutual_fund_entity.dart';
 
 class MutualFundCard extends StatelessWidget {
@@ -48,10 +49,8 @@ class MutualFundCard extends StatelessWidget {
                   Expanded(
                     child: Text(
                       fund.name,
-                      style: const TextStyle(
-                        color: AppColors.textPrimary,
-                        fontSize: 16,
-                        fontWeight: FontWeight.w500,
+                      style: AppStyles.bodyMedium.copyWith(
+                        fontWeight: AppStyles.medium,
                       ),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
@@ -63,19 +62,14 @@ class MutualFundCard extends StatelessWidget {
                     children: [
                       Text(
                         'NAV ₹${fund.nav}',
-                        style: const TextStyle(
-                          color: AppColors.textPrimary,
-                          fontSize: 16,
-                          fontWeight: FontWeight.w500,
+                        style: AppStyles.bodyMedium.copyWith(
+                          fontWeight: AppStyles.medium,
                         ),
                       ),
                       Text(
                         '1D ${fund.changePercent >= 0 ? '+' : ''}${fund.changePercent.toStringAsFixed(2)}%',
-                        style: TextStyle(
-                          color: fund.changePercent >= 0
-                              ? Colors.green
-                              : Colors.red,
-                          fontSize: 14,
+                        style: AppStyles.bodySmall.copyWith(
+                          color: fund.changePercent >= 0 ? Colors.green : Colors.red,
                         ),
                       ),
                     ],
@@ -85,9 +79,8 @@ class MutualFundCard extends StatelessWidget {
               const SizedBox(height: 12),
               Text(
                 'Others | ${fund.category}',
-                style: const TextStyle(
+                style: AppStyles.bodySmall.copyWith(
                   color: AppColors.textSecondary,
-                  fontSize: 14,
                 ),
               ),
               const SizedBox(height: 12),
@@ -113,17 +106,13 @@ class MutualFundCard extends StatelessWidget {
       children: [
         Text(
           period,
-          style: const TextStyle(
-            color: AppColors.textSecondary,
-            fontSize: 12,
-          ),
+          style: AppStyles.caption,
         ),
         Text(
           '${returnValue.toStringAsFixed(2)}%',
-          style: TextStyle(
+          style: AppStyles.bodySmall.copyWith(
             color: returnValue >= 0 ? Colors.green : Colors.red,
-            fontSize: 14,
-            fontWeight: FontWeight.w500,
+            fontWeight: AppStyles.medium,
           ),
         ),
       ],
@@ -131,22 +120,17 @@ class MutualFundCard extends StatelessWidget {
   }
 
   Widget _buildExpenseRatio() {
-    return const Column(
+    return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           'Exp. Ratio',
-          style: TextStyle(
-            color: AppColors.textSecondary,
-            fontSize: 12,
-          ),
+          style: AppStyles.caption,
         ),
         Text(
           '25.50%',
-          style: TextStyle(
-            color: AppColors.textPrimary,
-            fontSize: 14,
-            fontWeight: FontWeight.w500,
+          style: AppStyles.bodySmall.copyWith(
+            fontWeight: AppStyles.medium,
           ),
         ),
       ],

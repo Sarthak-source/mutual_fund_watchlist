@@ -78,23 +78,21 @@ class _ChartPageState extends State<ChartPage> {
               child: Row(
                 children: [
                   // First column: Invested
-                  const Expanded(
+                  Expanded(
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         Text(
                           'Invested',
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: Colors.grey,
+                          style: AppStyles.caption.copyWith(
+                            color: AppColors.textSecondary,
                           ),
                         ),
-                        SizedBox(height: 4),
+                        const SizedBox(height: 4),
                         Text(
                           '₹1.5k',
-                          style: TextStyle(
-                            fontSize: 14,
+                          style: AppStyles.bodyMedium.copyWith(
                             fontWeight: FontWeight.bold,
                           ),
                         ),

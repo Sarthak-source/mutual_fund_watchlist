@@ -20,4 +20,20 @@ class WatchlistEntity extends Equatable {
   List<Object?> get props => [id, name, funds, createdAt, updatedAt];
 
   bool get isEmpty => funds.isEmpty;
+
+  WatchlistEntity copyWith({
+    String? id,
+    String? name,
+    List<MutualFundEntity>? funds,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+  }) {
+    return WatchlistEntity(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      funds: funds ?? this.funds,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+    );
+  }
 } 

@@ -191,14 +191,15 @@ class _SignInOtpScreenState extends State<SignInOtpScreen> {
                         style: AppStyles.bodySmall.copyWith(
                           color: AppColors.textSecondary,
                         ),
-                        children: const [
+                        children: [
                           TextSpan(
                             text: 'By signing in, you agree to our ',
                           ),
                           TextSpan(
                             text: 'T&C',
-                            style: TextStyle(
+                            style: AppStyles.bodySmall.copyWith(
                               color: AppColors.primary,
+                              fontWeight: FontWeight.w600,
                             ),
                           ),
                           TextSpan(
@@ -206,8 +207,9 @@ class _SignInOtpScreenState extends State<SignInOtpScreen> {
                           ),
                           TextSpan(
                             text: 'Privacy Policy',
-                            style: TextStyle(
+                            style: AppStyles.bodySmall.copyWith(
                               color: AppColors.primary,
+                              fontWeight: FontWeight.w600,
                             ),
                           ),
                         ],
