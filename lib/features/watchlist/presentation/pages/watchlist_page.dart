@@ -121,18 +121,6 @@ class _WatchlistPageState extends State<WatchlistPage>
     });
   }
 
-  void _toggleSearch() {
-    setState(() {
-      _isSearching = !_isSearching;
-      if (_isSearching) {
-        _loadMutualFunds();
-      } else {
-        _searchController.clear();
-        _filteredFunds = [];
-      }
-    });
-  }
-
   bool _isFundInWatchlist(MutualFundEntity fund, WatchlistState state) {
     if (state is WatchlistLoaded && _tabController != null) {
       final currentWatchlist = state.watchlists[_tabController!.index];
@@ -561,49 +549,116 @@ class _WatchlistPageState extends State<WatchlistPage>
   Widget _buildFundsList(List<MutualFundEntity> funds) {
     return funds.isEmpty
         ? EmptyWatchlist(tabIndex: _tabController?.index ?? 0)
-        : ListView.builder(
-            padding: const EdgeInsets.all(16),
-            itemCount: funds.length,
-            itemBuilder: (context, index) {
-              final fund = funds[index];
-              return MutualFundCard(
-                fund: fund,
-                onDelete: () {
-                  context.read<WatchlistCubit>().removeFundFromWatchlist(fund);
+        : Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              TextButton.icon(
+                onPressed: () async {
+                  // Load mutual funds if they haven't been loaded yet.
+                  if (_allFunds.isEmpty) {
+                    await _loadMutualFunds();
+                  }
+                  // Toggle the search state so that the search results are shown.
+                  setState(() {
+                    _isSearching = true;
+                  });
                 },
-              );
-            },
+                icon: const Icon(Icons.add, color: AppColors.primary),
+                label: Text(
+                  'Add',
+                  style: AppStyles.button.copyWith(color: AppColors.primary),
+                ),
+              ),
+              Expanded(
+                child: ListView.builder(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  itemCount: funds.length,
+                  itemBuilder: (context, index) {
+                    final fund = funds[index];
+                    return MutualFundCard(
+                      fund: fund,
+                      onDelete: () {
+                        context
+                            .read<WatchlistCubit>()
+                            .removeFundFromWatchlist(fund);
+                      },
+                    );
+                  },
+                ),
+              ),
+            ],
           );
   }
 
   Widget _buildSearchResults(WatchlistState state) {
-    if (_isLoadingFunds) {
-      return const Center(child: CircularProgressIndicator());
-    }
-
-    if (_filteredFunds.isEmpty) {
-      return const Center(
-        child: Text(
-          'No mutual funds found',
-          style: TextStyle(color: AppColors.textSecondary),
-        ),
-      );
-    }
-
-    return ListView.builder(
-      padding: const EdgeInsets.all(16),
-      itemCount: _filteredFunds.length,
-      itemBuilder: (context, index) {
-        final fund = _filteredFunds[index];
-        return Padding(
-          padding: const EdgeInsets.only(bottom: 8),
-          child: MutualFundSearchCard(
-            fund: fund,
-            isSelected: _isFundInWatchlist(fund, state),
-            onToggle: () => _toggleFundInWatchlist(fund, state),
+    return Column(
+      children: [
+        // Search Field similar to EmptyWatchlist
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 5),
+          child: TextField(
+            controller: _searchController,
+            autofocus: true,
+            style: const TextStyle(color: AppColors.textPrimary),
+            decoration: InputDecoration(
+              hintText: 'Search for Mutual Funds, AMC, Fund Managers...',
+              hintStyle: const TextStyle(color: AppColors.textSecondary),
+              prefixIcon:
+                  const Icon(Icons.search, color: AppColors.textSecondary),
+              suffixIcon: IconButton(
+                icon: const Icon(Icons.close, color: AppColors.textSecondary),
+                onPressed: () {
+                  setState(() {
+                    _isSearching = false;
+                    _searchController.clear();
+                    _filteredFunds = _allFunds;
+                  });
+                },
+              ),
+              filled: true,
+              fillColor: AppColors.cardBackground,
+              contentPadding:
+                  const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide.none,
+              ),
+            ),
+            onChanged: (query) {
+              _filterFunds(query);
+            },
           ),
-        );
-      },
+        ),
+        // Results list
+        Expanded(
+          child: _isLoadingFunds
+              ? const Center(child: CircularProgressIndicator())
+              : _filteredFunds.isEmpty && _searchController.text.isNotEmpty
+                  ? Center(
+                      child: Text(
+                        'No mutual funds found',
+                        style: AppStyles.bodyMedium.copyWith(
+                          color: AppColors.textSecondary,
+                        ),
+                      ),
+                    )
+                  : ListView.builder(
+                      padding: const EdgeInsets.all(16),
+                      itemCount: _filteredFunds.length,
+                      itemBuilder: (context, index) {
+                        final fund = _filteredFunds[index];
+                        return Padding(
+                          padding: const EdgeInsets.only(bottom: 8),
+                          child: MutualFundSearchCard(
+                            fund: fund,
+                            isSelected: _isFundInWatchlist(fund, state),
+                            onToggle: () => _toggleFundInWatchlist(fund, state),
+                          ),
+                        );
+                      },
+                    ),
+        ),
+      ],
     );
   }
 }

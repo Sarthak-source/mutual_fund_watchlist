@@ -52,7 +52,7 @@ class MutualFundRemoteDataSourceImpl implements MutualFundRemoteDataSource {
   Future<List<MutualFundModel>> getMockMutualFundsList() async {
     // Return mock data for testing
     return [
-      MutualFundModel(
+      const MutualFundModel(
         isin: 'INF1234567890',
         name: 'HDFC Top 100 Fund',
         category: 'Large Cap',
@@ -63,7 +63,7 @@ class MutualFundRemoteDataSourceImpl implements MutualFundRemoteDataSource {
         description: 'A large cap equity fund',
         amc: 'HDFC Mutual Fund',
       ),
-      MutualFundModel(
+      const MutualFundModel(
         isin: 'INF9876543210',
         name: 'ICICI Prudential Bluechip Fund',
         category: 'Large Cap',

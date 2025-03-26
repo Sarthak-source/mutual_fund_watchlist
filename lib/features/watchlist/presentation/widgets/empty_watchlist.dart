@@ -46,7 +46,7 @@ class _EmptyWatchlistState extends State<EmptyWatchlist> {
     });
 
     final results = await context.read<WatchlistCubit>().searchFunds(query);
-    
+
     setState(() {
       _searchResults = results;
       _isLoading = false;
@@ -59,33 +59,34 @@ class _EmptyWatchlistState extends State<EmptyWatchlist> {
       return Column(
         children: [
           Padding(
-  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 5),
-  child: TextField(
-    controller: _searchController,
-    autofocus: true,
-    style: const TextStyle(color: AppColors.textPrimary),
-    decoration: InputDecoration(
-      hintText: 'Search for Mutual Funds, AMC, Fund Managers...',
-      hintStyle: const TextStyle(color: AppColors.textSecondary),
-      prefixIcon: const Icon(Icons.search, color: AppColors.textSecondary),
-      suffixIcon: IconButton(
-        icon: const Icon(Icons.close, color: AppColors.textSecondary),
-        onPressed: _toggleSearch,
-      ),
-      filled: true,
-      fillColor: AppColors.cardBackground,
-      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8), // reduced vertical padding
-      border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
-        borderSide: BorderSide.none,
-      ),
-    ),
-    onChanged: (query) {
-      _performSearch(query);
-    },
-  ),
-),
-
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 5),
+            child: TextField(
+              controller: _searchController,
+              autofocus: true,
+              style: const TextStyle(color: AppColors.textPrimary),
+              decoration: InputDecoration(
+                hintText: 'Search for Mutual Funds, AMC, Fund Managers...',
+                hintStyle: const TextStyle(color: AppColors.textSecondary),
+                prefixIcon:
+                    const Icon(Icons.search, color: AppColors.textSecondary),
+                suffixIcon: IconButton(
+                  icon: const Icon(Icons.close, color: AppColors.textSecondary),
+                  onPressed: _toggleSearch,
+                ),
+                filled: true,
+                fillColor: AppColors.cardBackground,
+                contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 16, vertical: 8), // reduced vertical padding
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide.none,
+                ),
+              ),
+              onChanged: (query) {
+                _performSearch(query);
+              },
+            ),
+          ),
           Expanded(
             child: _isLoading
                 ? const Center(
@@ -111,10 +112,12 @@ class _EmptyWatchlistState extends State<EmptyWatchlist> {
                               fund: fund,
                               isSelected: false,
                               onToggle: () {
-                                context.read<WatchlistCubit>().addFundToWatchlist(
-                                  fund,
-                                  tabIndex: widget.tabIndex,
-                                );
+                                context
+                                    .read<WatchlistCubit>()
+                                    .addFundToWatchlist(
+                                      fund,
+                                      tabIndex: widget.tabIndex,
+                                    );
                                 _toggleSearch(); // Close search after adding
                               },
                             ),

@@ -6,7 +6,7 @@ import 'package:mutual_fund_watchlist/features/watchlist/domain/entities/mutual_
 class MutualFundCard extends StatelessWidget {
   final MutualFundEntity fund;
   final VoidCallback? onDelete;
-  
+
   const MutualFundCard({
     super.key,
     required this.fund,
@@ -34,11 +34,12 @@ class MutualFundCard extends StatelessWidget {
       },
       child: Container(
         margin: const EdgeInsets.only(bottom: 12),
+        padding: const EdgeInsets.symmetric(vertical: 6),
         decoration: BoxDecoration(
           border: Border.all(
-    color: Colors.grey, // Same color as Divider
-    width: 0.2, // Same thickness as Divider
-  ),
+            color: Colors.grey, // Same color as Divider
+            width: 0.2, // Same thickness as Divider
+          ),
           color: AppColors.cardBackground,
           borderRadius: BorderRadius.circular(12),
         ),
@@ -50,14 +51,32 @@ class MutualFundCard extends StatelessWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Expanded(
-                    child: Text(
-                      fund.name,
-                      style: AppStyles.bodyMedium.copyWith(
-                        fontWeight: AppStyles.medium,
-                      ),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
+                  SizedBox(
+                    width: MediaQuery.of(context).size.width *
+                        0.6, // 40% of screen width
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          fund.name,
+
+                          style: AppStyles.bodyMedium.copyWith(
+                            fontWeight: AppStyles.medium,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow
+                              .ellipsis, // Ensures text doesn't overflow
+                        ),
+                        Text(
+                          'Others | ${fund.category}',
+                          style: AppStyles.bodySmall.copyWith(
+                            color: AppColors.textSecondary,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow
+                              .ellipsis, // Prevents category text overflow
+                        ),
+                      ],
                     ),
                   ),
                   const SizedBox(width: 8),
@@ -73,22 +92,16 @@ class MutualFundCard extends StatelessWidget {
                       Text(
                         '1D ${fund.changePercent >= 0 ? '+' : ''}${fund.changePercent.toStringAsFixed(2)}%',
                         style: AppStyles.bodySmall.copyWith(
-                          color: fund.changePercent >= 0 ? Colors.green : Colors.red,
+                          color: fund.changePercent >= 0
+                              ? Colors.green
+                              : Colors.red,
                         ),
                       ),
                     ],
                   ),
                 ],
               ),
-              
-               const Divider(color: Colors.grey, thickness: 0.4),
-
-              Text(
-                'Others | ${fund.category}',
-                style: AppStyles.bodySmall.copyWith(
-                  color: AppColors.textSecondary,
-                ),
-              ),
+              const Divider(color: Colors.grey, thickness: 0.4),
               const SizedBox(height: 12),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -105,14 +118,17 @@ class MutualFundCard extends StatelessWidget {
       ),
     );
   }
-  
+
   Widget _buildReturnColumn(String period, double returnValue) {
-    return Column(
+    return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           period,
           style: AppStyles.caption,
+        ),
+        const SizedBox(
+          width: 5,
         ),
         Text(
           '${returnValue.toStringAsFixed(2)}%',
@@ -126,12 +142,15 @@ class MutualFundCard extends StatelessWidget {
   }
 
   Widget _buildExpenseRatio() {
-    return Column(
+    return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const Text(
           'Exp. Ratio',
           style: AppStyles.caption,
+        ),
+        const SizedBox(
+          width: 5,
         ),
         Text(
           '25.50%',
@@ -142,4 +161,4 @@ class MutualFundCard extends StatelessWidget {
       ],
     );
   }
-} 
+}
