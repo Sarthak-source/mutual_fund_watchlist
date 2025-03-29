@@ -104,37 +104,29 @@ class WatchlistCubit extends Cubit<WatchlistState> {
       final currentState = state as WatchlistLoaded;
       final selectedWatchlist = currentState.selectedWatchlist;
       
-      final updatedFunds = selectedWatchlist.funds
-          .where((f) => f.isin != fund.isin)
-          .toList();
-          
-      final updatedWatchlist = WatchlistEntity(
-        id: selectedWatchlist.id,
-        name: selectedWatchlist.name,
-        funds: updatedFunds,
-        createdAt: selectedWatchlist.createdAt,
+      // Create updated watchlist with fund removed
+      final updatedWatchlist = selectedWatchlist.copyWith(
+        funds: selectedWatchlist.funds.where((f) => f.isin != fund.isin).toList(),
         updatedAt: DateTime.now(),
       );
       
+      // Save the updated watchlist
       final result = await saveWatchlist(updatedWatchlist);
       result.fold(
         (failure) => emit(WatchlistError(message: failure.toString())),
         (_) {
-          // If no funds left, reload all watchlists to update UI
-          if (updatedFunds.isEmpty) {
-            loadWatchlists();
-          } else {
-            // Otherwise, update the current state directly
-            emit(WatchlistLoaded(
-              watchlists: currentState.watchlists.map((w) {
-                if (w.id == updatedWatchlist.id) {
-                  return updatedWatchlist;
-                }
-                return w;
-              }).toList(),
-              selectedWatchlist: updatedWatchlist,
-            ));
-          }
+          // Update the state with the new watchlist
+          final updatedWatchlists = currentState.watchlists.map((w) {
+            if (w.id == updatedWatchlist.id) {
+              return updatedWatchlist;
+            }
+            return w;
+          }).toList();
+          
+          emit(WatchlistLoaded(
+            watchlists: updatedWatchlists,
+            selectedWatchlist: updatedWatchlist,
+          ));
         },
       );
     }

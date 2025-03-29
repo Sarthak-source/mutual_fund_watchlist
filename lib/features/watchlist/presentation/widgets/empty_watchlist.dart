@@ -63,20 +63,29 @@ class _EmptyWatchlistState extends State<EmptyWatchlist> {
             child: TextField(
               controller: _searchController,
               autofocus: true,
-              style: const TextStyle(color: AppColors.textPrimary),
+              style: AppStyles.bodyMedium,
               decoration: InputDecoration(
                 hintText: 'Search for Mutual Funds, AMC, Fund Managers...',
-                hintStyle: const TextStyle(color: AppColors.textSecondary),
-                prefixIcon:
-                    const Icon(Icons.search, color: AppColors.textSecondary),
+                hintStyle: AppStyles.bodySmall.copyWith(
+                  color: AppColors.textSecondary,
+                ),
+                prefixIcon: Icon(
+                  Icons.search,
+                  color: AppColors.textSecondary,
+                ),
                 suffixIcon: IconButton(
-                  icon: const Icon(Icons.close, color: AppColors.textSecondary),
+                  icon: Icon(
+                    Icons.close,
+                    color: AppColors.textSecondary,
+                  ),
                   onPressed: _toggleSearch,
                 ),
                 filled: true,
                 fillColor: AppColors.cardBackground,
                 contentPadding: const EdgeInsets.symmetric(
-                    horizontal: 16, vertical: 8), // reduced vertical padding
+                  horizontal: 16,
+                  vertical: 8,
+                ),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
                   borderSide: BorderSide.none,
@@ -146,10 +155,8 @@ class _EmptyWatchlistState extends State<EmptyWatchlist> {
           // Main title text
           Text(
             'Looks like your watchlist is empty',
-            style: AppStyles.bodyMedium.copyWith(
-              fontSize: 18,
-              fontWeight: FontWeight.w500,
-              color: AppColors.textPrimary,
+            style: AppStyles.bodyLarge.copyWith(
+              fontWeight: AppStyles.medium,
             ),
           ),
           const SizedBox(height: 16),
@@ -166,8 +173,8 @@ class _EmptyWatchlistState extends State<EmptyWatchlist> {
           OutlinedButton(
             onPressed: _toggleSearch,
             style: OutlinedButton.styleFrom(
-              side: const BorderSide(
-                color: AppColors.textPrimary,
+              side: BorderSide(
+                color: AppColors.textPrimary.withOpacity(0.4),
                 width: 0.4,
               ),
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
@@ -178,12 +185,14 @@ class _EmptyWatchlistState extends State<EmptyWatchlist> {
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Icon(Icons.add, color: AppColors.textPrimary),
+                Icon(
+                  Icons.add,
+                  color: AppColors.textPrimary,
+                ),
                 const SizedBox(width: 8),
                 Text(
                   'Add Mutual Funds',
-                  style: AppStyles.caption.copyWith(
-                    fontWeight: FontWeight.bold,
+                  style: AppStyles.button.copyWith(
                     color: AppColors.textPrimary,
                   ),
                 ),

@@ -4,17 +4,17 @@ import 'package:mutual_fund_watchlist/features/watchlist/data/models/mutual_fund
 
 class MutualFundRemoteDataSourceImpl implements MutualFundRemoteDataSource {
   final Dio dio;
-  final String apiKey;
+  final String baseUrl;
 
   MutualFundRemoteDataSourceImpl({
     required this.dio,
-    required this.apiKey,
+    this.baseUrl = 'https://sarthakhr-mutual-fund.hf.space',
   });
 
   @override
   Future<List<MutualFundModel>> getMutualFundsList() async {
     try {
-      final url = 'https://finnhub.io/api/v1/mutual-fund/list?token=$apiKey';
+      final url = '$baseUrl/api/v1/funds/';
       final response = await dio.get(url);
 
       if (response.statusCode == 200) {
@@ -33,7 +33,7 @@ class MutualFundRemoteDataSourceImpl implements MutualFundRemoteDataSource {
   @override
   Future<MutualFundModel> getMutualFundProfile(String isin) async {
     try {
-      final url = 'https://finnhub.io/api/v1/mutual-fund/profile?isin=$isin&token=$apiKey';
+      final url = '$baseUrl/api/v1/funds/$isin';
       final response = await dio.get(url);
 
       if (response.statusCode == 200) {
@@ -50,30 +50,7 @@ class MutualFundRemoteDataSourceImpl implements MutualFundRemoteDataSource {
 
   @override
   Future<List<MutualFundModel>> getMockMutualFundsList() async {
-    // Return mock data for testing
-    return [
-      const MutualFundModel(
-        isin: 'INF1234567890',
-        name: 'HDFC Top 100 Fund',
-        category: 'Large Cap',
-        nav: 45.67,
-        oneYearReturn: 15.5,
-        threeYearReturn: 12.3,
-        fiveYearReturn: 10.8,
-        description: 'A large cap equity fund',
-        amc: 'HDFC Mutual Fund',
-      ),
-      const MutualFundModel(
-        isin: 'INF9876543210',
-        name: 'ICICI Prudential Bluechip Fund',
-        category: 'Large Cap',
-        nav: 38.92,
-        oneYearReturn: 14.2,
-        threeYearReturn: 11.8,
-        fiveYearReturn: 9.5,
-        description: 'A large cap equity fund',
-        amc: 'ICICI Prudential Mutual Fund',
-      ),
-    ];
+    // This method is kept for backward compatibility or testing purposes
+    return getMutualFundsList();
   }
 } 

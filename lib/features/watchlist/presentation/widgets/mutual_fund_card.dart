@@ -16,7 +16,7 @@ class MutualFundCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Dismissible(
-      key: Key(fund.isin),
+      key: ValueKey(fund.isin),
       background: Container(
         alignment: Alignment.centerRight,
         color: Colors.red,
@@ -27,18 +27,41 @@ class MutualFundCard extends StatelessWidget {
         ),
       ),
       direction: DismissDirection.endToStart,
-      onDismissed: (_) {
-        if (onDelete != null) {
+      confirmDismiss: (direction) async {
+        final bool? result = await showDialog<bool>(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: const Text('Confirm Delete'),
+              content: Text('Are you sure you want to delete ${fund.name}?'),
+              actions: <Widget>[
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(false),
+                  child: const Text('Cancel'),
+                ),
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(true),
+                  child: const Text('Delete'),
+                ),
+              ],
+            );
+          },
+        );
+        if (result == true && onDelete != null) {
           onDelete!();
         }
+        return result ?? false;
+      },
+      onDismissed: (direction) {
+        // The onDelete callback is now handled in confirmDismiss
       },
       child: Container(
         margin: const EdgeInsets.only(bottom: 12),
         padding: const EdgeInsets.symmetric(vertical: 6),
         decoration: BoxDecoration(
           border: Border.all(
-            color: Colors.grey, // Same color as Divider
-            width: 0.2, // Same thickness as Divider
+            color: Colors.grey,
+            width: 0.2,
           ),
           color: AppColors.cardBackground,
           borderRadius: BorderRadius.circular(12),
@@ -52,20 +75,17 @@ class MutualFundCard extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   SizedBox(
-                    width: MediaQuery.of(context).size.width *
-                        0.6, // 40% of screen width
+                    width: MediaQuery.of(context).size.width * 0.55,
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
                           fund.name,
-
                           style: AppStyles.bodyMedium.copyWith(
                             fontWeight: AppStyles.medium,
                           ),
                           maxLines: 1,
-                          overflow: TextOverflow
-                              .ellipsis, // Ensures text doesn't overflow
+                          overflow: TextOverflow.ellipsis,
                         ),
                         Text(
                           'Others | ${fund.category}',
@@ -73,8 +93,7 @@ class MutualFundCard extends StatelessWidget {
                             color: AppColors.textSecondary,
                           ),
                           maxLines: 1,
-                          overflow: TextOverflow
-                              .ellipsis, // Prevents category text overflow
+                          overflow: TextOverflow.ellipsis,
                         ),
                       ],
                     ),

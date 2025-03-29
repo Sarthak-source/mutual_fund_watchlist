@@ -105,7 +105,6 @@ void setupDependencyInjection() {
   sl.registerLazySingleton<MutualFundRemoteDataSource>(
     () => MutualFundRemoteDataSourceImpl(
       dio: sl<Dio>(),
-      apiKey: dotenv.env['FINNHUB_API_KEY'] ?? '',
     ),
   );
 

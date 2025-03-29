@@ -23,9 +23,9 @@ class WatchlistBottomSheet extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 16),
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         color: AppColors.cardBackground,
-        borderRadius: BorderRadius.only(
+        borderRadius: const BorderRadius.only(
           topLeft: Radius.circular(16),
           topRight: Radius.circular(16),
         ),
@@ -39,26 +39,32 @@ class WatchlistBottomSheet extends StatelessWidget {
             child: Row(
               children: [
                 // Expanded text to center it
-                 Expanded(
+                Expanded(
                   child: Text(
                     'All Watchlist',
                     textAlign: TextAlign.center,
                     style: AppStyles.h3.copyWith(
-                      color: Colors.white,
+                      color: AppColors.textPrimary,
                     ),
                   ),
                 ),
                 // The close button remains on the right
                 IconButton(
                   onPressed: () => Navigator.pop(context),
-                  icon: const Icon(Icons.close, color: Colors.white),
+                  icon: Icon(
+                    Icons.close,
+                    color: AppColors.textPrimary,
+                  ),
                 ),
               ],
             ),
           ),
-          const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 12),
-            child: Divider(color: Colors.grey, thickness: 0.4),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 12),
+            child: Divider(
+              color: Colors.grey.withOpacity(0.4),
+              thickness: 0.4,
+            ),
           ),
           // List remains as is
           Flexible(
@@ -72,12 +78,27 @@ class WatchlistBottomSheet extends StatelessWidget {
                   title: Text(
                     watchlist.name,
                     style: AppStyles.bodyMedium.copyWith(
-                      color: Colors.white,
+                      color: AppColors.textPrimary,
                     ),
                   ),
-                  trailing: IconButton(
-                    icon: Icon(Icons.edit, color: AppColors.primary),
-                    onPressed: () => onEditWatchlist(watchlist),
+                  trailing: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      IconButton(
+                        icon: Icon(
+                          Icons.edit,
+                          color: AppColors.primary,
+                        ),
+                        onPressed: () => onEditWatchlist(watchlist),
+                      ),
+                      IconButton(
+                        icon: Icon(
+                          Icons.delete_outline,
+                          color: Colors.red,
+                        ),
+                        onPressed: () => onDeleteWatchlist(watchlist),
+                      ),
+                    ],
                   ),
                   onTap: () {
                     Navigator.pop(context);
@@ -87,9 +108,12 @@ class WatchlistBottomSheet extends StatelessWidget {
               },
             ),
           ),
-          const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 12),
-            child: Divider(color: Colors.grey, thickness: 0.4),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 12),
+            child: Divider(
+              color: Colors.grey.withOpacity(0.4),
+              thickness: 0.4,
+            ),
           ),
           // Footer Section (centered)
           Center(
@@ -101,7 +125,7 @@ class WatchlistBottomSheet extends StatelessWidget {
                 ),
                 title: Text(
                   'Create a new watchlist',
-                  style: AppStyles.bodyMedium.copyWith(
+                  style: AppStyles.button.copyWith(
                     color: AppColors.primary,
                   ),
                 ),
@@ -117,3 +141,4 @@ class WatchlistBottomSheet extends StatelessWidget {
     );
   }
 }
+

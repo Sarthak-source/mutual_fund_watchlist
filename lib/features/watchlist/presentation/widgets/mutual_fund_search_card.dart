@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mutual_fund_watchlist/core/utils/app_colors.dart';
+import 'package:mutual_fund_watchlist/core/utils/app_styles.dart';
 import 'package:mutual_fund_watchlist/features/watchlist/domain/entities/mutual_fund_entity.dart';
 
 class MutualFundSearchCard extends StatelessWidget {
@@ -20,15 +21,15 @@ class MutualFundSearchCard extends StatelessWidget {
       onTap: onToggle,
       child: Container(
         padding: const EdgeInsets.all(16),
-        decoration: const BoxDecoration(
-          //color: AppColors.cardBackground,
-          //borderRadius: BorderRadius.circular(12),
+        decoration: BoxDecoration(
+          color: AppColors.cardBackground,
+          borderRadius: BorderRadius.circular(12),
           border: Border(
-      bottom: BorderSide(
-        color: Colors.white,
-        width: 0.4, // adjust thickness if needed
-      ),
-    ),
+            bottom: BorderSide(
+              color: Colors.white.withOpacity(0.4),
+              width: 0.4,
+            ),
+          ),
         ),
         child: Row(
           children: [
@@ -43,10 +44,9 @@ class MutualFundSearchCard extends StatelessWidget {
               child: Center(
                 child: Text(
                   fund.name.substring(0, 1),
-                  style: const TextStyle(
+                  style: AppStyles.bodyMedium.copyWith(
                     color: Colors.white,
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
+                    fontWeight: AppStyles.bold,
                   ),
                 ),
               ),
@@ -59,10 +59,8 @@ class MutualFundSearchCard extends StatelessWidget {
                 children: [
                   Text(
                     fund.name,
-                    style: const TextStyle(
-                      color: AppColors.textPrimary,
-                      fontSize: 16,
-                      fontWeight: FontWeight.w500,
+                    style: AppStyles.bodyMedium.copyWith(
+                      fontWeight: AppStyles.medium,
                     ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
@@ -70,9 +68,8 @@ class MutualFundSearchCard extends StatelessWidget {
                   const SizedBox(height: 4),
                   Text(
                     fund.category,
-                    style: const TextStyle(
+                    style: AppStyles.bodySmall.copyWith(
                       color: AppColors.textSecondary,
-                      fontSize: 14,
                     ),
                   ),
                 ],
@@ -83,7 +80,7 @@ class MutualFundSearchCard extends StatelessWidget {
               onPressed: onToggle,
               icon: Icon(
                 isSelected ? Icons.bookmark : Icons.bookmark_outline,
-                color: isSelected ? Colors.blue : AppColors.textSecondary,
+                color: isSelected ? AppColors.primary : AppColors.textSecondary,
               ),
             ),
           ],
